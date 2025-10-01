@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Aggregate } from "@/types";
 
 interface LiveOpsCardProps {
@@ -17,6 +18,20 @@ function formatTime(seconds: number): string {
 }
 
 export default function LiveOpsCard({ aggregate }: LiveOpsCardProps) {
+  const [currentTime, setCurrentTime] = useState<string>("");
+
+  // Update time only on client-side to avoid hydration mismatch
+  useEffect(() => {
+    const updateTime = () => {
+      setCurrentTime(new Date().toLocaleTimeString());
+    };
+    
+    updateTime(); // Set initial time
+    const interval = setInterval(updateTime, 1000); // Update every second
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const region = aggregate?.region ?? "Nationwide";
   const calls = aggregate?.counts.calls ?? 320;
   const chats = aggregate?.counts.chats ?? 120;
@@ -74,7 +89,9 @@ export default function LiveOpsCard({ aggregate }: LiveOpsCardProps) {
           <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" /> <span>0.35–0.60</span></div>
           <div className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-400 inline-block" /> <span>&gt; 0.60</span></div>
         </div>
-        <div className="mt-2 text-[10px] text-gray-500">Updated: {new Date().toLocaleTimeString()}</div>
+        {currentTime && (
+          <div className="mt-2 text-[10px] text-gray-500">Updated: {currentTime}</div>
+        )}
       </div>
     </div>
   );
