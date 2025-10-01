@@ -12700,7 +12700,10 @@
         "shapeISO": "SA-08",
         "shapeID": "25081817B61333239611232",
         "shapeGroup": "SAU",
-        "shapeType": "ADM1"
+        "shapeType": "ADM1",
+        "name_en": "Northern Borders",
+        "name_ar": "الحدود الشمالية",
+        "ewi": 0.27
       },
       "geometry": {
         "type": "Polygon",
@@ -15913,7 +15916,10 @@
         "shapeISO": "SA-06",
         "shapeID": "25081817B30843703179747",
         "shapeGroup": "SAU",
-        "shapeType": "ADM1"
+        "shapeType": "ADM1",
+        "name_en": "Hail",
+        "name_ar": "حائل",
+        "ewi": 0.29
       },
       "geometry": {
         "type": "Polygon",
@@ -20734,7 +20740,10 @@
         "shapeISO": "SA-14",
         "shapeID": "25081817B79414847265706",
         "shapeGroup": "SAU",
-        "shapeType": "ADM1"
+        "shapeType": "ADM1",
+        "name_en": "Asir",
+        "name_ar": "عسير",
+        "ewi": 0.38
       },
       "geometry": {
         "type": "Polygon",
@@ -45931,7 +45940,10 @@
         "shapeISO": "SA-03",
         "shapeID": "25081817B5326875801694",
         "shapeGroup": "SAU",
-        "shapeType": "ADM1"
+        "shapeType": "ADM1",
+        "name_en": "Madinah",
+        "name_ar": "المدينة المنورة",
+        "ewi": 0.35
       },
       "geometry": {
         "type": "Polygon",

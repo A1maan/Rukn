@@ -48,9 +48,9 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
               };
             },
             onEachFeature: (feature, layer) => {
-              const name = feature.properties.name_en;
-              const nameAr = feature.properties.name_ar;
-              const ewi = feature.properties.ewi;
+              const name = feature.properties?.name_en || feature.properties?.shapeName || "Unknown";
+              const nameAr = feature.properties?.name_ar || feature.properties?.shapeName || "غير معروف";
+              const ewi = feature.properties?.ewi ?? 0;
 
               // Tooltip
               layer.bindTooltip(
