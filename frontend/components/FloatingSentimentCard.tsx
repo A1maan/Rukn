@@ -1,7 +1,7 @@
 "use client";
 
 import { Aggregate } from "@/types";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, PieLabelRenderProps } from "recharts";
 
 interface FloatingSentimentCardProps {
   aggregate: Aggregate | null;
@@ -31,7 +31,7 @@ export default function FloatingSentimentCard({ aggregate }: FloatingSentimentCa
             outerRadius={60}
             paddingAngle={2}
             dataKey="value"
-            label={(entry) => `${(entry.value * 100).toFixed(0)}%`}
+            label={(props: PieLabelRenderProps) => `${((props.value as number) * 100).toFixed(0)}%`}
             labelLine={true}
           >
             {sentimentData.map((entry, index) => (
