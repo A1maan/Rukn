@@ -21,7 +21,7 @@ export default function FloatingSentimentCard({ aggregate }: FloatingSentimentCa
       <h3 className="text-sm font-bold text-gray-800 mb-2">
         Sentiment Distribution
       </h3>
-      <ResponsiveContainer width="100%" height={150}>
+      <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
             data={sentimentData}
@@ -32,6 +32,7 @@ export default function FloatingSentimentCard({ aggregate }: FloatingSentimentCa
             paddingAngle={2}
             dataKey="value"
             label={(entry) => `${(entry.value * 100).toFixed(0)}%`}
+            labelLine={true}
           >
             {sentimentData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />

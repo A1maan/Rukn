@@ -11,15 +11,21 @@ export default function FloatingAlertBadge({ count, onClick }: FloatingAlertBadg
   return (
     <button
       onClick={onClick}
-      className="fixed top-6 right-6 z-30 bg-white/90 backdrop-blur-md border-2 border-red-400 rounded-xl px-5 py-3 shadow-xl hover:bg-red-50 transition-all hover:scale-105"
+      className="fixed top-6 left-6 z-30 bg-white/90 backdrop-blur-md border-2 border-red-400 rounded-lg px-3 py-2 shadow-lg hover:bg-red-50 transition-all hover:scale-105"
+      title="View Pending Alerts"
     >
-      <div className="flex items-center gap-3">
-        <Bell className="w-5 h-5 text-red-600" />
-        <div className="text-left">
-          <div className="text-2xl font-bold text-red-600">{count}</div>
-          <div className="text-xs text-gray-600">Pending Alerts</div>
+      <div className="flex items-center gap-2">
+        <div className="relative">
+          <Bell className="w-4 h-4 text-red-600" />
+          {count > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              {count > 9 ? '9+' : count}
+            </span>
+          )}
         </div>
+        <span className="text-sm font-semibold text-red-600">{count}</span>
       </div>
     </button>
   );
 }
+

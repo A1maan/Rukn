@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { Users } from "lucide-react";
 import FloatingTitle from "@/components/FloatingTitle";
 import FloatingFilters from "@/components/FloatingFilters";
-import FloatingAlertBadge from "@/components/FloatingAlertBadge";
 import FloatingVolumeCard from "@/components/FloatingVolumeCard";
 import FloatingSentimentCard from "@/components/FloatingSentimentCard";
 import FlaggedRequestsCard from "@/components/FlaggedRequestsCard";
@@ -117,10 +118,16 @@ export default function Dashboard() {
         onWindowChange={setTimeWindow}
         onChannelChange={setChannels}
       />
-      <FloatingAlertBadge
-        count={alerts.length}
-        onClick={() => setShowAlertsList(true)}
-      />
+
+      {/* User Support Button */}
+      <Link
+        href="/user"
+        className="fixed top-6 right-6 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-white/90 backdrop-blur-sm border-2 border-amber-300 text-gray-700 hover:bg-amber-50 hover:border-amber-400 transition-all shadow-md"
+        title="User Support"
+      >
+        <Users className="w-4 h-4" />
+        <span className="text-sm font-medium">Support</span>
+      </Link>
 
       <div className="absolute inset-0">
         {/* Map fills the entire space */}

@@ -22,7 +22,7 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
       const map = L.map("map", {
         center: [23.8859, 45.0792], // KSA center
         zoom: 6,
-        zoomControl: true,
+        zoomControl: false,
         scrollWheelZoom: true,
         attributionControl: false,
       });

@@ -7,6 +7,13 @@ interface FloatingVolumeCardProps {
   aggregate: Aggregate | null;
 }
 
+const TIME_WINDOWS: Record<string, string> = {
+  last_30m: "Last 30 Minutes",
+  last_60m: "Last Hour",
+  last_3h: "Last 3 Hours",
+  today: "Today",
+};
+
 export default function FloatingVolumeCard({ aggregate }: FloatingVolumeCardProps) {
   if (!aggregate) return null;
 
@@ -54,7 +61,7 @@ export default function FloatingVolumeCard({ aggregate }: FloatingVolumeCardProp
       </div>
 
       <div className="mt-2 text-xs text-gray-500 text-center">
-        {aggregate.window}
+        {TIME_WINDOWS[aggregate.window] || aggregate.window}
       </div>
     </div>
   );

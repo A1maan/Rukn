@@ -1,0 +1,401 @@
+/* ============================================
+   RESPONSIVE COMPONENT UTILITIES
+   Dashboard-specific responsive classes
+   ============================================ */
+
+/* ============================================
+   FLOATING CARDS RESPONSIVE POSITIONING
+   ============================================ */
+
+/* Mobile First - Default styles */
+.responsive-floating-card {
+  position: fixed;
+  z-index: 20;
+  transition: all 0.3s ease;
+}
+
+/* Title Card */
+.floating-title-responsive {
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100vw - 2rem);
+  max-width: 400px;
+}
+
+/* Filters Card */
+.floating-filters-responsive {
+  top: 5rem;
+  left: 0.5rem;
+  width: calc(100vw - 1rem);
+  max-width: 320px;
+}
+
+/* Alert Badge */
+.floating-alert-badge-responsive {
+  top: 5rem;
+  right: 0.5rem;
+}
+
+/* Volume Card */
+.floating-volume-card-responsive {
+  display: none; /* Hidden on mobile by default */
+}
+
+/* Sentiment Card */
+.floating-sentiment-card-responsive {
+  display: none; /* Hidden on mobile by default */
+}
+
+/* Live Ops Card */
+.live-ops-card-responsive {
+  bottom: 0.5rem;
+  left: 0.5rem;
+  width: calc(100vw - 1rem);
+  max-width: 320px;
+}
+
+/* Alerts Ticker */
+.alerts-ticker-responsive {
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: calc(100vw - 1rem);
+  max-width: 300px;
+}
+
+/* Flagged Requests Button */
+.flagged-requests-btn-responsive {
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ============================================
+   TABLET LANDSCAPE (640px and up)
+   ============================================ */
+@media (min-width: 640px) {
+  .floating-title-responsive {
+    max-width: 500px;
+  }
+
+  .floating-filters-responsive {
+    top: 5rem;
+    left: 1rem;
+    width: auto;
+  }
+
+  .floating-alert-badge-responsive {
+    top: 5rem;
+    right: 1rem;
+  }
+
+  .floating-volume-card-responsive {
+    display: block;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    width: 280px;
+  }
+
+  .floating-sentiment-card-responsive {
+    display: block;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    width: 300px;
+  }
+
+  .live-ops-card-responsive {
+    bottom: 1rem;
+    left: 1rem;
+    width: 280px;
+  }
+
+  .alerts-ticker-responsive {
+    bottom: 1rem;
+    right: 1rem;
+    width: 300px;
+  }
+
+  .flagged-requests-btn-responsive {
+    bottom: 1rem;
+  }
+}
+
+/* ============================================
+   DESKTOP (1024px and up)
+   ============================================ */
+@media (min-width: 1024px) {
+  .floating-title-responsive {
+    max-width: 600px;
+  }
+
+  .floating-filters-responsive {
+    left: 1.5rem;
+  }
+
+  .floating-alert-badge-responsive {
+    right: 1.5rem;
+  }
+
+  .floating-volume-card-responsive {
+    left: 1.5rem;
+    width: 320px;
+  }
+
+  .floating-sentiment-card-responsive {
+    right: 1.5rem;
+    width: 320px;
+  }
+
+  .live-ops-card-responsive {
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 320px;
+  }
+
+  .alerts-ticker-responsive {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 350px;
+  }
+}
+
+/* ============================================
+   LARGE DESKTOP (1440px and up)
+   ============================================ */
+@media (min-width: 1440px) {
+  .floating-volume-card-responsive {
+    width: 360px;
+  }
+
+  .floating-sentiment-card-responsive {
+    width: 360px;
+  }
+
+  .live-ops-card-responsive {
+    width: 360px;
+  }
+
+  .alerts-ticker-responsive {
+    width: 400px;
+  }
+}
+
+/* ============================================
+   MODAL RESPONSIVE STYLES
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-content-responsive {
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #C9A961;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 640px) {
+  .modal-content-responsive {
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .modal-content-responsive {
+    max-width: 700px;
+  }
+}
+
+/* ============================================
+   CHART RESPONSIVE SIZING
+   ============================================ */
+
+.chart-container-responsive {
+  width: 100%;
+  height: 200px;
+}
+
+@media (min-width: 640px) {
+  .chart-container-responsive {
+    height: 240px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chart-container-responsive {
+    height: 280px;
+  }
+}
+
+/* ============================================
+   TEXT RESPONSIVE SIZING
+   ============================================ */
+
+.text-responsive-title {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-responsive-heading {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.text-responsive-body {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-responsive-small {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+@media (min-width: 640px) {
+  .text-responsive-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .text-responsive-heading {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .text-responsive-body {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .text-responsive-small {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+}
+
+/* ============================================
+   GRID RESPONSIVE LAYOUTS
+   ============================================ */
+
+.grid-responsive-1-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-1-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+.grid-responsive-1-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-1-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive-1-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* ============================================
+   BUTTON RESPONSIVE SIZING
+   ============================================ */
+
+.btn-responsive {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .btn-responsive {
+    padding: 0.625rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   VISIBILITY UTILITIES
+   ============================================ */
+
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .hide-mobile {
+    display: block;
+  }
+}
+
+.show-mobile-only {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .show-mobile-only {
+    display: none;
+  }
+}
+
+.hide-tablet {
+  display: block;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hide-tablet {
+    display: none;
+  }
+}
+
+.show-tablet-only {
+  display: none;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .show-tablet-only {
+    display: block;
+  }
+}
+
+/* ============================================
+   TOUCH-FRIENDLY SIZING
+   ============================================ */
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (pointer: fine) {
+  .touch-target {
+    min-height: 36px;
+    min-width: 36px;
+  }
+}

@@ -8,6 +8,13 @@ interface FloatingFiltersProps {
   onChannelChange?: (channels: string[]) => void;
 }
 
+const TIME_WINDOWS = {
+  last_30m: "Last 30 Minutes",
+  last_60m: "Last Hour",
+  last_3h: "Last 3 Hours",
+  today: "Today",
+};
+
 export default function FloatingFilters({
   onWindowChange,
   onChannelChange,
@@ -45,7 +52,7 @@ export default function FloatingFilters({
           <div className="text-left">
             <div className="text-sm font-bold text-gray-800">Filters</div>
             <div className="text-xs text-gray-600">
-              {selectedWindow.replace("last_", "")} • {selectedChannels.length} channels
+              {TIME_WINDOWS[selectedWindow as keyof typeof TIME_WINDOWS]} • {selectedChannels.length} channels
             </div>
           </div>
         </div>
