@@ -4,22 +4,22 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Users } from "lucide-react";
-import FloatingTitle from "@/components/FloatingTitle";
-import FloatingFilters from "@/components/FloatingFilters";
-import FloatingVolumeCard from "@/components/FloatingVolumeCard";
-import FloatingSentimentCard from "@/components/FloatingSentimentCard";
-import FlaggedRequestsCard from "@/components/FlaggedRequestsCard";
-import FlaggedRequestsButton from "@/components/FlaggedRequestsButton";
-import LiveOpsCard from "@/components/LiveOpsCard";
-import AlertsTicker from "@/components/AlertsTicker";
-import FloatingInstructionCard from "@/components/FloatingInstructionCard";
-import AlertModal from "@/components/AlertModal";
-import AlertsListModal from "@/components/AlertsListModal";
+import FloatingTitle from "@/components/dashboard/FloatingTitle";
+import FloatingFilters from "@/components/dashboard/FloatingFilters";
+import FloatingVolumeCard from "@/components/dashboard/FloatingVolumeCard";
+import FloatingSentimentCard from "@/components/dashboard/FloatingSentimentCard";
+import FlaggedRequestsCard from "@/components/dashboard/FlaggedRequestsCard";
+import FlaggedRequestsButton from "@/components/dashboard/FlaggedRequestsButton";
+import LiveOpsCard from "@/components/dashboard/LiveOpsCard";
+import AlertsTicker from "@/components/dashboard/AlertsTicker";
+import FloatingInstructionCard from "@/components/dashboard/FloatingInstructionCard";
+import AlertModal from "@/components/dashboard/AlertModal";
+import AlertsListModal from "@/components/dashboard/AlertsListModal";
 import { Alert, Aggregate, FlaggedRequest } from "@/types";
 import { mockFlaggedRequests } from "@/lib/mock-data";
 
 // Dynamic import for map to avoid SSR issues with Leaflet
-const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
+const MapView = dynamic(() => import("@/components/dashboard/MapView"), { ssr: false });
 
 export default function Dashboard() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
