@@ -7,6 +7,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const region = searchParams.get('region');
     const window = searchParams.get('window') || 'today';
+    const channelsParam = searchParams.get('channels');
+    const channels = channelsParam ? channelsParam.split(',') : ['call', 'chat', 'survey'];
 
     // Calculate time range
     let startTime: string;
@@ -32,10 +34,17 @@ export async function GET(request: Request) {
 
     // If no region specified, return aggregates for all regions
     if (!region) {
-      const { data: requests, error } = await supabase
+      let query = supabase
         .from('requests')
         .select('*')
         .gte('created_at', startTime);
+      
+      // Filter by channels
+      if (channels.length > 0 && channels.length < 3) {
+        query = query.in('channel', channels);
+      }
+
+      const { data: requests, error } = await query;
 
       if (error) throw error;
 
@@ -64,6 +73,11 @@ export async function GET(request: Request) {
 
     if (region !== 'all') {
       query = query.eq('region', region);
+    }
+
+    // Filter by channels
+    if (channels.length > 0 && channels.length < 3) {
+      query = query.in('channel', channels);
     }
 
     const { data: requests, error } = await query;

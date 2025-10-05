@@ -35,7 +35,8 @@ export default function Dashboard() {
 
   // Fetch all regions' EWI data for initial map coloring
   useEffect(() => {
-    fetch(`/api/aggregates?window=${timeWindow}`)
+    const channelsParam = channels.join(',');
+    fetch(`/api/aggregates?window=${timeWindow}&channels=${channelsParam}`)
       .then((res) => res.json())
       .then((data: Aggregate[]) => {
         // Convert array of aggregates to record mapping region code -> EWI
@@ -48,7 +49,8 @@ export default function Dashboard() {
         setRegionEWIs(ewisMap);
       })
       .catch(console.error);
-  }, [timeWindow]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeWindow, channels.join(',')]);
 
   // Fetch alerts
   useEffect(() => {
@@ -78,11 +80,13 @@ export default function Dashboard() {
       return;
     }
 
-    fetch(`/api/aggregates?region=${encodeURIComponent(selectedRegion)}&window=${timeWindow}`)
+    const channelsParam = channels.join(',');
+    fetch(`/api/aggregates?region=${encodeURIComponent(selectedRegion)}&window=${timeWindow}&channels=${channelsParam}`)
       .then((res) => res.json())
       .then((data: Aggregate) => setAggregate(data))
       .catch(console.error);
-  }, [selectedRegion, timeWindow]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRegion, timeWindow, channels.join(',')]);
 
   // Filter flagged requests by urgency for high priority count
   const highPriorityCount = flaggedRequests.filter((req) => req.urgency === "HIGH").length;
