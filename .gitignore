@@ -51,3 +51,8 @@ image.png
 /rukn-notes
 
 */DEMO-SCRIPT.md
+
+# Python cache
+__pycache__/
+*.pyc
+
