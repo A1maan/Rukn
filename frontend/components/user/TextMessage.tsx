@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Send } from "lucide-react";
+import RegionSelector from "./RegionSelector";
 
 interface TextMessageProps {
   onBack: () => void;
@@ -9,13 +10,28 @@ interface TextMessageProps {
 
 export default function TextMessage({ onBack }: TextMessageProps) {
   const [message, setMessage] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [showRegionError, setShowRegionError] = useState(false);
 
   const handleSendMessage = () => {
-    if (message.trim()) {
-      // TODO: Implement message sending
-      console.log("Sending message:", message);
-      setMessage("");
+    if (!message.trim()) return;
+
+    // Validate region selection
+    if (!selectedRegion) {
+      setShowRegionError(true);
+      return;
     }
+
+    // TODO: Implement message sending with region
+    console.log("Sending message:", message);
+    console.log("Region:", selectedRegion);
+    alert(`Message submitted for region: ${selectedRegion}\n(Backend integration pending)`);
+    
+    // Reset form
+    setMessage("");
+    setSelectedRegion("");
+    setShowRegionError(false);
+    onBack();
   };
 
   return (
@@ -34,6 +50,23 @@ export default function TextMessage({ onBack }: TextMessageProps) {
         </div>
 
         <div className="space-y-6">
+          {/* Region Selector */}
+          <RegionSelector 
+            selectedRegion={selectedRegion}
+            onRegionChange={(region) => {
+              setSelectedRegion(region);
+              setShowRegionError(false);
+            }}
+          />
+          
+          {showRegionError && !selectedRegion && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600 text-center">
+                ⚠️ يرجى اختيار المنطقة قبل الإرسال / Please select your region before submitting
+              </p>
+            </div>
+          )}
+
           {/* Message Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

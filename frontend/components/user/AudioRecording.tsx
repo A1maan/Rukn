@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Mic, Square, Play, RotateCcw, Send } from "lucide-react";
+import RegionSelector from "./RegionSelector";
 
 interface AudioRecordingProps {
   onBack: () => void;
@@ -14,6 +15,8 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
   const [audioURL, setAudioURL] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [showRegionError, setShowRegionError] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -130,17 +133,27 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
     setRecordingTime(0);
     setIsPlaying(false);
     setError("");
+    setShowRegionError(false);
   };
 
   const handleSubmit = async () => {
     if (!audioBlob) return;
 
-    // TODO: Implement backend submission
+    // Validate region selection
+    if (!selectedRegion) {
+      setShowRegionError(true);
+      setError("Please select your region before submitting");
+      return;
+    }
+
+    // TODO: Implement backend submission with region
     console.log("Submitting audio blob:", audioBlob);
-    alert("Recording submitted! (Backend integration pending)");
+    console.log("Region:", selectedRegion);
+    alert(`Recording submitted for region: ${selectedRegion}\n(Backend integration pending)`);
     
     // Reset after submission
     handleReRecord();
+    setSelectedRegion("");
     onBack();
   };
 
@@ -269,6 +282,24 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
                   استمع للتسجيل قبل الإرسال / Listen to your recording before submitting
                 </p>
               </div>
+            </div>
+
+            {/* Region Selector */}
+            <div className="w-full max-w-md">
+              <RegionSelector 
+                selectedRegion={selectedRegion}
+                onRegionChange={(region) => {
+                  setSelectedRegion(region);
+                  setShowRegionError(false);
+                  setError("");
+                }}
+              />
+              
+              {showRegionError && !selectedRegion && (
+                <p className="text-sm text-red-600 mt-2 text-center">
+                  ⚠️ يرجى اختيار المنطقة قبل الإرسال / Please select your region before submitting
+                </p>
+              )}
             </div>
 
             {/* Action Buttons */}
