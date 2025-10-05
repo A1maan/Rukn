@@ -7,9 +7,10 @@ import { getEWIColor } from "@/lib/utils";
 interface MapViewProps {
   onRegionClick?: (regionName: string) => void;
   selectedRegion?: string | null;
+  regionEWIs?: Record<string, number>; // Map of region codes to EWI values
 }
 
-export default function MapView({ onRegionClick, selectedRegion }: MapViewProps) {
+export default function MapView({ onRegionClick, selectedRegion, regionEWIs = {} }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const geoJSONLayerRef = useRef<L.GeoJSON | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,8 +59,9 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
         .then((geoJSON) => {
           const layer = L.geoJSON(geoJSON, {
             style: (feature) => {
-              const ewi = feature?.properties?.ewi || 0;
               const code = feature?.properties?.code || "";
+              // Use regionEWIs prop if available, otherwise use feature property
+              const ewi = regionEWIs[code] ?? feature?.properties?.ewi ?? 0;
               const isSelected = selectedRegion === code;
 
               return {
@@ -74,7 +76,8 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
               const name = feature.properties?.name_en || feature.properties?.shapeName || "Unknown";
               const nameAr = feature.properties?.name_ar || feature.properties?.shapeName || "غير معروف";
               const code = feature.properties?.code || ""; // The region code for API calls
-              const ewi = feature.properties?.ewi ?? 0;
+              // Use regionEWIs prop if available, otherwise use feature property
+              const ewi = regionEWIs[code] ?? feature.properties?.ewi ?? 0;
 
               // Tooltip
               layer.bindTooltip(
@@ -134,22 +137,39 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
         });
     }
 
-    // Update styles when selectedRegion changes
+    // Update styles and tooltips when selectedRegion or regionEWIs change
     if (geoJSONLayerRef.current) {
       geoJSONLayerRef.current.eachLayer((layer: any) => {
         const feature = layer.feature;
         const code = feature?.properties?.code || "";
-        const ewi = feature?.properties?.ewi || 0;
+        const name = feature?.properties?.name_en || feature?.properties?.shapeName || "Unknown";
+        const nameAr = feature?.properties?.name_ar || feature?.properties?.shapeName || "غير معروف";
+        // Use regionEWIs prop if available, otherwise use feature property
+        const ewi = regionEWIs[code] ?? feature?.properties?.ewi ?? 0;
         const isSelected = selectedRegion === code;
 
+        // Update style
         layer.setStyle({
           fillColor: getEWIColor(ewi),
           fillOpacity: isSelected ? 0.95 : 0.85,
           weight: isSelected ? 3.5 : 2.5,
         });
+
+        // Update tooltip content with current EWI
+        layer.unbindTooltip();
+        layer.bindTooltip(
+          `
+          <div class="font-sans">
+            <div class="font-semibold text-sm">${name}</div>
+            <div class="text-xs text-gray-600 mb-1">${nameAr}</div>
+            <div class="text-xs">EWI: <span class="font-bold">${(ewi * 100).toFixed(0)}%</span></div>
+          </div>
+        `,
+          { className: "map-tooltip" }
+        );
       });
     }
-  }, [onRegionClick, selectedRegion]);
+  }, [onRegionClick, selectedRegion, regionEWIs]);
 
   return (
     <div className="relative h-full w-full">

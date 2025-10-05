@@ -9,17 +9,20 @@ interface FloatingFiltersProps {
 }
 
 const TIME_WINDOWS = {
+  today: "Today",
   last_30m: "Last 30 Minutes",
   last_60m: "Last Hour",
   last_3h: "Last 3 Hours",
-  today: "Today",
+  last_6h: "Last 6 Hours",
+  last_12h: "Last 12 Hours",
+  last_24h: "Last 24 Hours"
 };
 
 export default function FloatingFilters({
   onWindowChange,
   onChannelChange,
 }: FloatingFiltersProps) {
-  const [selectedWindow, setSelectedWindow] = useState("last_60m");
+  const [selectedWindow, setSelectedWindow] = useState("today");
   const [selectedChannels, setSelectedChannels] = useState<string[]>([
     "call",
     "chat",
@@ -83,10 +86,13 @@ export default function FloatingFilters({
         </label>
         <div className="grid grid-cols-2 gap-2">
           {[
+            { label: "Today", value: "today" },
             { label: "30m", value: "last_30m" },
             { label: "1h", value: "last_60m" },
             { label: "3h", value: "last_3h" },
-            { label: "Today", value: "today" },
+            { label: "6h", value: "last_6h" },
+            { label: "12h", value: "last_12h" },
+            { label: "24h", value: "last_24h" },
           ].map((option) => (
             <button
               key={option.value}

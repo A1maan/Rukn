@@ -26,10 +26,29 @@ export default function Dashboard() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [flaggedRequests, setFlaggedRequests] = useState<FlaggedRequest[]>([]);
   const [aggregate, setAggregate] = useState<Aggregate | null>(null);
-  const [timeWindow, setTimeWindow] = useState("last_60m");
+  const [regionEWIs, setRegionEWIs] = useState<Record<string, number>>({});
+  const [timeWindow, setTimeWindow] = useState("today");
   const [channels, setChannels] = useState<string[]>(["call", "chat", "survey"]);
   const [showFlaggedRequests, setShowFlaggedRequests] = useState(false);
   const [showAlertsList, setShowAlertsList] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Fetch all regions' EWI data for initial map coloring
+  useEffect(() => {
+    fetch(`/api/aggregates?window=${timeWindow}`)
+      .then((res) => res.json())
+      .then((data: Aggregate[]) => {
+        // Convert array of aggregates to record mapping region code -> EWI
+        const ewisMap: Record<string, number> = {};
+        data.forEach((agg) => {
+          if (agg.region) {
+            ewisMap[agg.region] = agg.ewi;
+          }
+        });
+        setRegionEWIs(ewisMap);
+      })
+      .catch(console.error);
+  }, [timeWindow]);
 
   // Fetch alerts
   useEffect(() => {
@@ -52,7 +71,7 @@ export default function Dashboard() {
       .catch(console.error);
   }, [selectedRegion]);
 
-  // Fetch aggregate data when region is selected
+  // Fetch aggregate data when region is selected OR on initial load with timeWindow
   useEffect(() => {
     if (!selectedRegion) {
       setAggregate(null);
@@ -70,6 +89,7 @@ export default function Dashboard() {
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
+    setHasInteracted(true);
   };
 
   const handleAlertClick = (alert: Alert) => {
@@ -163,10 +183,13 @@ export default function Dashboard() {
         <MapView
           onRegionClick={handleRegionClick}
           selectedRegion={selectedRegion}
+          regionEWIs={regionEWIs}
         />
 
         {/* Floating cards overlay the map */}
-        {!selectedRegion && !aggregate && <FloatingInstructionCard />}
+        {!selectedRegion && !aggregate && !hasInteracted && (
+          <FloatingInstructionCard onClose={() => setHasInteracted(true)} />
+        )}
 
         {aggregate && (
           <>

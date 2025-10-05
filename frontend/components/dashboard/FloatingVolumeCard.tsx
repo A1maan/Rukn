@@ -11,6 +11,9 @@ const TIME_WINDOWS: Record<string, string> = {
   last_30m: "Last 30 Minutes",
   last_60m: "Last Hour",
   last_3h: "Last 3 Hours",
+  last_6h: "Last 6 Hours",
+  last_12h: "Last 12 Hours",
+  last_24h: "Last 24 Hours",
   today: "Today",
 };
 

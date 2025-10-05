@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Aggregate } from "@/types";
+import { getRegionDisplayName } from "@/lib/utils";
 
 interface LiveOpsCardProps {
   aggregate: Aggregate | null;
@@ -32,7 +33,7 @@ export default function LiveOpsCard({ aggregate }: LiveOpsCardProps) {
     return () => clearInterval(interval);
   }, []);
 
-  const region = aggregate?.region ?? "Nationwide";
+  const region = aggregate?.region ? getRegionDisplayName(aggregate.region) : "Nationwide";
   const calls = aggregate?.counts.calls ?? 320;
   const chats = aggregate?.counts.chats ?? 120;
   const ewi = aggregate?.ewi ?? 0.42;
