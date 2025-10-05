@@ -6,7 +6,7 @@ with_emotion.zip
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+*/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -19,7 +19,7 @@ with_emotion.zip
 /coverage
 
 # next.js
-/.next/
+*/.next/
 /out/
 
 # production
@@ -37,6 +37,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -48,3 +49,5 @@ next-env.d.ts
 image.png
 
 /rukn-notes
+
+*/DEMO-SCRIPT.md
