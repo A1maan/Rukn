@@ -8,19 +8,19 @@ interface RegionSelectorProps {
 }
 
 const SAUDI_REGIONS = [
-  { en: "Riyadh", ar: "الرياض" },
-  { en: "Makkah", ar: "مكة المكرمة" },
-  { en: "Madinah", ar: "المدينة المنورة" },
-  { en: "Eastern Province", ar: "المنطقة الشرقية" },
-  { en: "Asir", ar: "عسير" },
-  { en: "Tabuk", ar: "تبوك" },
-  { en: "Qassim", ar: "القصيم" },
-  { en: "Hail", ar: "حائل" },
-  { en: "Northern Borders", ar: "الحدود الشمالية" },
-  { en: "Jazan", ar: "جازان" },
-  { en: "Najran", ar: "نجران" },
-  { en: "Al-Baha", ar: "الباحة" },
-  { en: "Al-Jawf", ar: "الجوف" },
+  { value: "riyadh", label: "Riyadh", ar: "الرياض" },
+  { value: "makkah", label: "Makkah", ar: "مكة المكرمة" },
+  { value: "madinah", label: "Madinah", ar: "المدينة المنورة" },
+  { value: "eastern_province", label: "Eastern Province", ar: "المنطقة الشرقية" },
+  { value: "asir", label: "Asir", ar: "عسير" },
+  { value: "tabuk", label: "Tabuk", ar: "تبوك" },
+  { value: "qassim", label: "Qassim", ar: "القصيم" },
+  { value: "hail", label: "Hail", ar: "حائل" },
+  { value: "northern_borders", label: "Northern Borders", ar: "الحدود الشمالية" },
+  { value: "jazan", label: "Jazan", ar: "جازان" },
+  { value: "najran", label: "Najran", ar: "نجران" },
+  { value: "al_bahah", label: "Al-Bahah", ar: "الباحة" },
+  { value: "al_jouf", label: "Al-Jouf", ar: "الجوف" },
 ];
 
 export default function RegionSelector({ selectedRegion, onRegionChange }: RegionSelectorProps) {
@@ -40,8 +40,8 @@ export default function RegionSelector({ selectedRegion, onRegionChange }: Regio
       >
         <option value="">-- اختر المنطقة / Choose Region --</option>
         {SAUDI_REGIONS.map((region) => (
-          <option key={region.en} value={region.en}>
-            {region.ar} / {region.en}
+          <option key={region.value} value={region.value}>
+            {region.ar} / {region.label}
           </option>
         ))}
       </select>

@@ -16,7 +16,6 @@ import FloatingInstructionCard from "@/components/dashboard/FloatingInstructionC
 import AlertModal from "@/components/dashboard/AlertModal";
 import AlertsListModal from "@/components/dashboard/AlertsListModal";
 import { Alert, Aggregate, FlaggedRequest } from "@/types";
-import { mockFlaggedRequests } from "@/lib/mock-data";
 
 // Dynamic import for map to avoid SSR issues with Leaflet
 const MapView = dynamic(() => import("@/components/dashboard/MapView"), { ssr: false });
@@ -25,7 +24,7 @@ export default function Dashboard() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [flaggedRequests, setFlaggedRequests] = useState<FlaggedRequest[]>(mockFlaggedRequests);
+  const [flaggedRequests, setFlaggedRequests] = useState<FlaggedRequest[]>([]);
   const [aggregate, setAggregate] = useState<Aggregate | null>(null);
   const [timeWindow, setTimeWindow] = useState("last_60m");
   const [channels, setChannels] = useState<string[]>(["call", "chat", "survey"]);
@@ -40,6 +39,19 @@ export default function Dashboard() {
       .catch(console.error);
   }, [timeWindow]);
 
+  // Fetch flagged requests
+  useEffect(() => {
+    const params = new URLSearchParams({
+      status: "pending",
+      ...(selectedRegion && { region: selectedRegion })
+    });
+    
+    fetch(`/api/flagged-requests?${params}`)
+      .then((res) => res.json())
+      .then((data: FlaggedRequest[]) => setFlaggedRequests(data))
+      .catch(console.error);
+  }, [selectedRegion]);
+
   // Fetch aggregate data when region is selected
   useEffect(() => {
     if (!selectedRegion) {
@@ -53,12 +65,8 @@ export default function Dashboard() {
       .catch(console.error);
   }, [selectedRegion, timeWindow]);
 
-  // Filter flagged requests by selected region and status
-  const filteredRequests = flaggedRequests
-    .filter((req) => req.status === "pending")
-    .filter((req) => selectedRegion ? req.region === selectedRegion : true);
-
-  const highPriorityCount = filteredRequests.filter((req) => req.urgency === "HIGH").length;
+  // Filter flagged requests by urgency for high priority count
+  const highPriorityCount = flaggedRequests.filter((req) => req.urgency === "HIGH").length;
 
   const handleRegionClick = (regionName: string) => {
     setSelectedRegion(regionName);
@@ -82,32 +90,53 @@ export default function Dashboard() {
     setAlerts((prev) => prev.filter((a) => a.id !== alertId));
   };
 
-  const handleReviewRequest = (requestId: string) => {
-    console.log("Review request:", requestId);
-    // Open detailed view or mark as reviewed
-    setFlaggedRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, status: "reviewed" as const } : req
-      )
-    );
+  const handleReviewRequest = async (requestId: string) => {
+    try {
+      const response = await fetch(`/api/flagged-requests?id=${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "reviewed" }),
+      });
+
+      if (response.ok) {
+        // Remove from list immediately for better UX
+        setFlaggedRequests((prev) => prev.filter((req) => req.id !== requestId));
+      }
+    } catch (error) {
+      console.error("Failed to review request:", error);
+    }
   };
 
-  const handleEscalateRequest = (requestId: string) => {
-    console.log("Escalate request:", requestId);
-    setFlaggedRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, status: "escalated" as const } : req
-      )
-    );
+  const handleEscalateRequest = async (requestId: string) => {
+    try {
+      const response = await fetch(`/api/flagged-requests?id=${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "escalated" }),
+      });
+
+      if (response.ok) {
+        setFlaggedRequests((prev) => prev.filter((req) => req.id !== requestId));
+      }
+    } catch (error) {
+      console.error("Failed to escalate request:", error);
+    }
   };
 
-  const handleDismissRequest = (requestId: string) => {
-    console.log("Dismiss request:", requestId);
-    setFlaggedRequests((prev) =>
-      prev.map((req) =>
-        req.id === requestId ? { ...req, status: "dismissed" as const } : req
-      )
-    );
+  const handleDismissRequest = async (requestId: string) => {
+    try {
+      const response = await fetch(`/api/flagged-requests?id=${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "dismissed" }),
+      });
+
+      if (response.ok) {
+        setFlaggedRequests((prev) => prev.filter((req) => req.id !== requestId));
+      }
+    } catch (error) {
+      console.error("Failed to dismiss request:", error);
+    }
   };
 
   return (
@@ -151,9 +180,9 @@ export default function Dashboard() {
         <AlertsTicker alerts={alerts} onClickMore={() => setShowAlertsList(true)} onSelect={handleAlertClick} />
 
         {/* Flagged requests button - always show if there are requests */}
-        {filteredRequests.length > 0 && !showFlaggedRequests && (
+        {flaggedRequests.length > 0 && !showFlaggedRequests && (
           <FlaggedRequestsButton
-            count={filteredRequests.length}
+            count={flaggedRequests.length}
             highPriorityCount={highPriorityCount}
             onClick={() => setShowFlaggedRequests(true)}
           />
@@ -162,7 +191,7 @@ export default function Dashboard() {
         {/* Flagged requests modal - shows when button is clicked */}
         {showFlaggedRequests && (
           <FlaggedRequestsCard
-            requests={filteredRequests}
+            requests={flaggedRequests}
             onReview={handleReviewRequest}
             onEscalate={handleEscalateRequest}
             onDismiss={handleDismissRequest}

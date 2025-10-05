@@ -1,7 +1,7 @@
 "use client";
 
 import { Aggregate } from "@/types";
-import { getEWILabel, formatNumber } from "@/lib/utils";
+import { getEWILabel, formatNumber, getRegionDisplayName } from "@/lib/utils";
 
 interface FloatingVolumeCardProps {
   aggregate: Aggregate | null;
@@ -18,12 +18,13 @@ export default function FloatingVolumeCard({ aggregate }: FloatingVolumeCardProp
   if (!aggregate) return null;
 
   const ewiLabel = getEWILabel(aggregate.ewi);
+  const regionName = getRegionDisplayName(aggregate.region);
 
   return (
     <div className="floating-card absolute top-32 left-6 z-20 w-64 bg-white/90 backdrop-blur-md rounded-xl border-2 border-amber-300 shadow-xl p-4">
       {/* Header with region name and EWI */}
       <div className="mb-3">
-        <h3 className="text-base font-bold text-gray-800">{aggregate.region}</h3>
+        <h3 className="text-base font-bold text-gray-800">{regionName}</h3>
         <div className="mt-1.5">
           <span className="text-xs font-medium text-gray-600">EWI:</span>
           <div className={`inline-block ml-1.5 px-2 py-0.5 rounded-full text-xs font-bold border ${ewiLabel.color}`}>

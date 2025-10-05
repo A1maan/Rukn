@@ -31,7 +31,7 @@ export default function FloatingSentimentCard({ aggregate }: FloatingSentimentCa
             outerRadius={60}
             paddingAngle={2}
             dataKey="value"
-            label={(props: PieLabelRenderProps) => `${((props.value as number) * 100).toFixed(0)}%`}
+            label={(props: PieLabelRenderProps) => `${((props.value as number)).toFixed(0)}%`}
             labelLine={true}
           >
             {sentimentData.map((entry, index) => (

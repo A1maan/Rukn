@@ -4,11 +4,40 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
-// EWI color mapping (white/cream → champagne gold → rose gold)
+// Helper function to interpolate between two colors
+function interpolateColor(color1: number[], color2: number[], factor: number): string {
+  const result = color1.slice();
+  for (let i = 0; i < 3; i++) {
+    result[i] = Math.round(result[i] + factor * (color2[i] - result[i]));
+  }
+  return `rgb(${result[0]}, ${result[1]}, ${result[2]})`;
+}
+
+// EWI color mapping with smooth gradient (Green → Yellow → Red)
+// Based on legend: Low < 0.35 (Green), 0.35-0.60 (Yellow), > 0.60 (Red)
 export function getEWIColor(ewi: number): string {
-  if (ewi < 0.35) return "#FDFCF7"; // Soft ivory/white (low)
-  if (ewi < 0.6) return "#E6C88A"; // Champagne gold (medium)
-  return "#C9A961"; // Deep gold/copper (high)
+  // Clamp EWI between 0 and 1
+  const normalizedEWI = Math.max(0, Math.min(1, ewi));
+  
+  // Define color ranges based on legend
+  const green = [76, 175, 80];    // #4CAF50 - Green for low
+  const yellow = [255, 193, 7];   // #FFC107 - Yellow for medium
+  const red = [244, 67, 54];      // #F44336 - Red for high
+  
+  if (normalizedEWI < 0.35) {
+    // Low range: interpolate from light green to green
+    const lightGreen = [200, 230, 201]; // Very light green for very low values
+    const factor = normalizedEWI / 0.35;
+    return interpolateColor(lightGreen, green, factor);
+  } else if (normalizedEWI < 0.60) {
+    // Medium range: interpolate from green to yellow
+    const factor = (normalizedEWI - 0.35) / 0.25;
+    return interpolateColor(green, yellow, factor);
+  } else {
+    // High range: interpolate from yellow to red
+    const factor = (normalizedEWI - 0.60) / 0.40;
+    return interpolateColor(yellow, red, factor);
+  }
 }
 
 export function getEWILabel(ewi: number): { text: string; color: string } {
@@ -48,4 +77,26 @@ export function formatDateTime(
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(isoString));
+}
+
+// Region code to display name mapping
+const REGION_DISPLAY_NAMES: Record<string, string> = {
+  riyadh: "Riyadh",
+  makkah: "Makkah",
+  madinah: "Madinah",
+  eastern_province: "Eastern Province",
+  asir: "Asir",
+  tabuk: "Tabuk",
+  qassim: "Qassim",
+  hail: "Hail",
+  northern_borders: "Northern Borders",
+  jazan: "Jazan",
+  najran: "Najran",
+  al_bahah: "Al-Bahah",
+  al_jouf: "Al-Jouf",
+};
+
+// Convert region code to display name
+export function getRegionDisplayName(code: string): string {
+  return REGION_DISPLAY_NAMES[code] || code.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }

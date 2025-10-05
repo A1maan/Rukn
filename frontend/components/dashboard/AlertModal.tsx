@@ -26,16 +26,22 @@ export default function AlertModal({
   const handleApprove = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/alerts/${alert.id}/approve`, {
-        method: "POST",
+      const response = await fetch(`/api/alerts/${alert.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note }),
+        body: JSON.stringify({ 
+          action: "approve",
+          notes: note 
+        }),
       });
 
       if (response.ok) {
         onApprove?.(alert.id, note);
         setNote("");
         onClose();
+      } else {
+        const error = await response.json();
+        console.error("Failed to approve alert:", error);
       }
     } catch (error) {
       console.error("Failed to approve alert:", error);
@@ -47,16 +53,22 @@ export default function AlertModal({
   const handleReject = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/alerts/${alert.id}/reject`, {
-        method: "POST",
+      const response = await fetch(`/api/alerts/${alert.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note }),
+        body: JSON.stringify({ 
+          action: "reject",
+          notes: note 
+        }),
       });
 
       if (response.ok) {
         onReject?.(alert.id, note);
         setNote("");
         onClose();
+      } else {
+        const error = await response.json();
+        console.error("Failed to reject alert:", error);
       }
     } catch (error) {
       console.error("Failed to reject alert:", error);

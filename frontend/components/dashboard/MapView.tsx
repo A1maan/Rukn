@@ -29,6 +29,29 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
 
       mapRef.current = map;
 
+      // Add custom CSS for smooth transitions and hover effects
+      const style = document.createElement('style');
+      style.textContent = `
+        .province-polygon {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .province-polygon.hover-effect {
+          filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3)) 
+                  drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+          transform: scale(1.02) !important;
+          transform-origin: center !important;
+        }
+        .map-tooltip {
+          background: rgba(255, 255, 255, 0.98) !important;
+          border: 2px solid #C9A961 !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          padding: 8px 12px !important;
+          font-family: system-ui, -apple-system, sans-serif !important;
+        }
+      `;
+      document.head.appendChild(style);
+
       // Load GeoJSON
       fetch("/api/regions")
         .then((res) => res.json())
@@ -36,8 +59,8 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
           const layer = L.geoJSON(geoJSON, {
             style: (feature) => {
               const ewi = feature?.properties?.ewi || 0;
-              const isSelected =
-                selectedRegion === feature?.properties?.name_en;
+              const code = feature?.properties?.code || "";
+              const isSelected = selectedRegion === code;
 
               return {
                 fillColor: getEWIColor(ewi),
@@ -50,6 +73,7 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
             onEachFeature: (feature, layer) => {
               const name = feature.properties?.name_en || feature.properties?.shapeName || "Unknown";
               const nameAr = feature.properties?.name_ar || feature.properties?.shapeName || "غير معروف";
+              const code = feature.properties?.code || ""; // The region code for API calls
               const ewi = feature.properties?.ewi ?? 0;
 
               // Tooltip
@@ -64,26 +88,37 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
                 { className: "map-tooltip" }
               );
 
-              // Click handler
+              // Click handler - pass the region code (not display name)
               layer.on("click", () => {
-                if (onRegionClick) {
-                  onRegionClick(name);
+                if (onRegionClick && code) {
+                  onRegionClick(code);
                 }
               });
 
-              // Hover effects
+              // Hover effects with smooth scale and shadow
               layer.on("mouseover", function (this: L.Path) {
+                const element = (this as any)._path;
+                if (element) {
+                  element.classList.add('hover-effect');
+                }
                 this.setStyle({
-                  weight: 4,
-                  fillOpacity: 0.95,
+                  weight: 4.5,
+                  fillOpacity: 1,
+                  color: "#D4AF37", // Brighter gold on hover
                 });
+                this.bringToFront();
               });
 
               layer.on("mouseout", function (this: L.Path) {
-                const isSelected = selectedRegion === name;
+                const element = (this as any)._path;
+                if (element) {
+                  element.classList.remove('hover-effect');
+                }
+                const isSelected = selectedRegion === code;
                 this.setStyle({
                   weight: isSelected ? 3.5 : 2.5,
                   fillOpacity: isSelected ? 0.95 : 0.85,
+                  color: "#C9A961", // Back to normal gold
                 });
               });
             },
@@ -103,9 +138,9 @@ export default function MapView({ onRegionClick, selectedRegion }: MapViewProps)
     if (geoJSONLayerRef.current) {
       geoJSONLayerRef.current.eachLayer((layer: any) => {
         const feature = layer.feature;
-        const name = feature?.properties?.name_en;
+        const code = feature?.properties?.code || "";
         const ewi = feature?.properties?.ewi || 0;
-        const isSelected = selectedRegion === name;
+        const isSelected = selectedRegion === code;
 
         layer.setStyle({
           fillColor: getEWIColor(ewi),
