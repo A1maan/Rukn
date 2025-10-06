@@ -1,0 +1,16 @@
+{
+  "emotion_labels": [
+    "anger",
+    "anticipation",
+    "confusion",
+    "disgust",
+    "fear",
+    "happiness",
+    "neutral",
+    "optimism",
+    "pessimism",
+    "sadness",
+    "surprise"
+  ],
+  "temperature": 0.9500000000000002
+}

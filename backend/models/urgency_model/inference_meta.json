@@ -1,0 +1,10 @@
+{
+  "urgency_labels": [
+    "high",
+    "medium",
+    "low"
+  ],
+  "temperature": 1.7000000000000008,
+  "tau_high": 0.26,
+  "notes": "Single-head urgency classifier with crisis override; probabilities calibrated on val via temperature scaling; high threshold tuned by F-beta."
+}
