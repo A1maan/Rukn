@@ -56,3 +56,4 @@ image.png
 __pycache__/
 *.pyc
 
+*/models/

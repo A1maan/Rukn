@@ -1,13 +1,11 @@
-# Base
 fastapi
 uvicorn[standard]
 python-dotenv
 supabase
 httpx
 pydantic
-
-# Optional ML tools
 torch
 transformers
 numpy
 scikit-learn
+python-multipart
