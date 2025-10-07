@@ -14,7 +14,51 @@ export default function TextMessage({ onBack }: TextMessageProps) {
   const [showRegionError, setShowRegionError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [error, setError] = useState<string>("");
+
+  const emotionTranslations: Record<string, string> = {
+    'anger': 'غضب',
+    'fear': 'خوف',
+    'sadness': 'حزن',
+    'happiness': 'سعادة',
+    'surprise': 'مفاجأة',
+    'neutral': 'محايد',
+    'disgust': 'اشمئزاز',
+    'anticipation': 'ترقب',
+    'optimism': 'تفاؤل',
+    'pessimism': 'تشاؤم',
+    'confusion': 'حيرة'
+  };
+
+  const urgencyTranslations: Record<string, string> = {
+    'high': 'عالية',
+    'medium': 'متوسطة',
+    'low': 'منخفضة'
+  };
+
+  const formatEmotion = (emotion: string) => {
+    // Capitalize first letter of each word
+    return emotion.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
+  const formatTopic = (topic: string) => {
+    // Replace underscores with spaces and capitalize
+    return topic.replace(/_/g, ' ').split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
+  const handleClose = () => {
+    setMessage("");
+    setSelectedRegion("");
+    setShowRegionError(false);
+    setIsSubmitted(false);
+    setAnalysisResult(null);
+    onBack();
+  };
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
@@ -49,17 +93,11 @@ export default function TextMessage({ onBack }: TextMessageProps) {
       const result = await response.json();
       console.log('Text analysis result:', result);
       
-      // Show success state
+      // Show success state with analysis results (if available)
+      if (result.analysis) {
+        setAnalysisResult(result.analysis);
+      }
       setIsSubmitted(true);
-      
-      // Auto-redirect after 3 seconds
-      setTimeout(() => {
-        setMessage("");
-        setSelectedRegion("");
-        setShowRegionError(false);
-        setIsSubmitted(false);
-        onBack();
-      }, 3000);
     } catch (err) {
       console.error('Submission error:', err);
       setError('Failed to submit message. Please try again.');
@@ -91,11 +129,69 @@ export default function TextMessage({ onBack }: TextMessageProps) {
 
       {/* Success Message */}
       {isSubmitted && (
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center z-20 rounded-lg">
-          <div className="text-center text-white">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center z-20 rounded-lg p-8">
+          <div className="text-center text-white max-w-md w-full">
             <CheckCircle className="h-16 w-16 mx-auto mb-4" />
-            <p className="text-xl font-semibold">تم الإرسال بنجاح</p>
-            <p className="text-lg">Successfully Submitted</p>
+            <p className="text-2xl font-bold mb-2">تم الإرسال بنجاح</p>
+            <p className="text-xl mb-6">Successfully Submitted</p>
+            
+            {/* Analysis Results - only show if available */}
+            {analysisResult ? (
+              <>
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-5 space-y-3 mb-6">
+                  <div className="flex justify-between items-center border-b border-white/30 pb-3">
+                    <span className="font-semibold text-left">العاطفة<br/><span className="text-sm opacity-90">Emotion</span></span>
+                    <span className="bg-white/30 px-4 py-2 rounded-full text-right">
+                      <div>{emotionTranslations[analysisResult.emotion] || formatEmotion(analysisResult.emotion)}</div>
+                      <div className="text-sm opacity-90">{formatEmotion(analysisResult.emotion)}</div>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-white/30 pb-3">
+                    <span className="font-semibold text-left">الأولوية<br/><span className="text-sm opacity-90">Urgency</span></span>
+                    <span className={`px-4 py-2 rounded-full text-right ${
+                      analysisResult.urgency === 'high' ? 'bg-red-500/90' :
+                      analysisResult.urgency === 'medium' ? 'bg-amber-500/90' :
+                      'bg-green-600/90'
+                    }`}>
+                      <div>{urgencyTranslations[analysisResult.urgency]}</div>
+                      <div className="text-sm opacity-90 capitalize">{analysisResult.urgency}</div>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-white/30 pb-3">
+                    <span className="font-semibold text-left">الموضوع<br/><span className="text-sm opacity-90">Topic</span></span>
+                    <span className="bg-white/30 px-4 py-2 rounded-full text-sm text-right">
+                      {formatTopic(analysisResult.topic)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-left">الدقة<br/><span className="text-sm opacity-90">Confidence</span></span>
+                    <span className="bg-white/30 px-4 py-2 rounded-full font-bold">
+                      {(analysisResult.confidence * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleClose}
+                  className="w-full px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-semibold transition-all border-2 border-white/40"
+                >
+                  حسناً / OK
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm mb-6 opacity-90">
+                  تم استلام طلبك وسيتم الرد عليه قريباً<br />
+                  Your request has been received and will be processed soon
+                </p>
+                <button
+                  onClick={handleClose}
+                  className="w-full px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-semibold transition-all border-2 border-white/40"
+                >
+                  حسناً / OK
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

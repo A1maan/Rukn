@@ -43,19 +43,16 @@ export async function POST(request: Request) {
 
     const requestId = insertedRequest.id;
 
-    // Step 2: Return immediately to user
-    const response = NextResponse.json({
+    // Step 2: Process analysis (await to get results)
+    const analysisResult = await processAnalysis(requestId, body.text);
+
+    // Step 3: Return results to frontend
+    return NextResponse.json({
       success: true,
       request_id: requestId,
-      message: 'Request received. Analyzing...'
+      analysis: analysisResult,
+      message: 'Analysis complete'
     });
-
-    // Step 3: Process in background (don't await)
-    processInBackground(requestId, body.text).catch(error => {
-      console.error('Background processing error:', error);
-    });
-
-    return response;
 
   } catch (error: any) {
     console.error('Error:', error);
@@ -66,8 +63,8 @@ export async function POST(request: Request) {
   }
 }
 
-// Background processing function
-async function processInBackground(requestId: string, text: string) {
+// Processing function that returns results
+async function processAnalysis(requestId: string, text: string) {
   try {
     // Call MARBERT backend
     const backendResponse = await fetch(`${BACKEND_URL}/analyze`, {
@@ -108,9 +105,19 @@ async function processInBackground(requestId: string, text: string) {
       console.error('Error updating request:', updateError);
     }
 
+    // Return analysis results to frontend
+    return {
+      emotion: emotion,
+      urgency: urgency,
+      topic: topic,
+      confidence: prediction.confidence,
+      is_flagged: shouldFlag
+    };
+
   } catch (error) {
     console.error('Processing error:', error);
-    // Request stays with null values if processing fails
+    // Return null if processing fails
+    return null;
   }
 }
 
