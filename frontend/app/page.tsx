@@ -15,7 +15,7 @@ import AlertsTicker from "@/components/dashboard/AlertsTicker";
 import FloatingInstructionCard from "@/components/dashboard/FloatingInstructionCard";
 import AlertModal from "@/components/dashboard/AlertModal";
 import AlertsListModal from "@/components/dashboard/AlertsListModal";
-import ReviewModal from "@/components/ReviewModal";
+import ReviewModal from "@/components/dashboard/ReviewModal";
 import Toast, { useToast } from "@/components/dashboard/Toast";
 import { Alert, Aggregate, FlaggedRequest } from "@/types";
 import { useRealtimeRequests, useRealtimeAlerts, useRealtimeRegionStats } from "@/lib/useRealtimeSubscription";
