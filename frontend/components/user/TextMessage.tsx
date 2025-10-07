@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, CheckCircle } from "lucide-react";
 import RegionSelector from "./RegionSelector";
 
 interface TextMessageProps {
@@ -13,6 +13,7 @@ export default function TextMessage({ onBack }: TextMessageProps) {
   const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [showRegionError, setShowRegionError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string>("");
 
   const handleSendMessage = async () => {
@@ -48,14 +49,17 @@ export default function TextMessage({ onBack }: TextMessageProps) {
       const result = await response.json();
       console.log('Text analysis result:', result);
       
-      // Show success message
-      alert(`Message submitted successfully for region: ${selectedRegion}\nProcessing complete!`);
+      // Show success state
+      setIsSubmitted(true);
       
-      // Reset form
-      setMessage("");
-      setSelectedRegion("");
-      setShowRegionError(false);
-      onBack();
+      // Auto-redirect after 3 seconds
+      setTimeout(() => {
+        setMessage("");
+        setSelectedRegion("");
+        setShowRegionError(false);
+        setIsSubmitted(false);
+        onBack();
+      }, 3000);
     } catch (err) {
       console.error('Submission error:', err);
       setError('Failed to submit message. Please try again.');
@@ -75,13 +79,26 @@ export default function TextMessage({ onBack }: TextMessageProps) {
 
       <div className="bg-white/85 backdrop-blur-md rounded-2xl border-2 border-amber-300 p-8 shadow-lg relative">
         {/* Processing Overlay */}
-        {isSubmitting && (
-          <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl z-10">
-            <div className="animate-spin h-12 w-12 border-4 border-amber-600 border-t-transparent rounded-full mb-3"></div>
-            <p className="text-sm font-medium text-gray-700">تحليل الرسالة...</p>
-            <p className="text-xs text-gray-500">Analyzing message...</p>
+              {/* Processing Overlay */}
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-3"></div>
+            <p className="text-gray-600">جاري المعالجة... / Processing...</p>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Success Message */}
+      {isSubmitted && (
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center z-20 rounded-lg">
+          <div className="text-center text-white">
+            <CheckCircle className="h-16 w-16 mx-auto mb-4" />
+            <p className="text-xl font-semibold">تم الإرسال بنجاح</p>
+            <p className="text-lg">Successfully Submitted</p>
+          </div>
+        </div>
+      )}
 
         <div className="text-center mb-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">إرسال رسالة نصية</h2>
