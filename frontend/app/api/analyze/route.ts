@@ -14,7 +14,6 @@ export async function POST(request: Request) {
   try {
     const body: AnalyzeRequest = await request.json();
     
-    // Validate input
     if (!body.text || !body.channel || !body.region) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -22,62 +21,41 @@ export async function POST(request: Request) {
       );
     }
 
-    // Call your MARBERT backend
-    const backendResponse = await fetch(`${BACKEND_URL}/analyze`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: body.text })
-    });
-
-    if (!backendResponse.ok) {
-      throw new Error(`Backend error: ${backendResponse.status}`);
-    }
-
-    const prediction = await backendResponse.json();
-    
-    // Map emotion to Supabase schema (11 emotions)
-    const emotion = mapEmotionToSchema(prediction.emotion);
-    const urgency = prediction.urgency.toLowerCase();
-    const topic = predictTopic(body.text);
-    
-    // Determine if should flag
-    const shouldFlag = (
-      urgency === 'high' ||
-      prediction.reasons.includes('crisis_override') ||
-      (urgency === 'medium' && ['anger', 'fear', 'sadness'].includes(emotion))
-    );
-
-    // Insert into Supabase
-    const { data, error } = await supabase
+    // Step 1: Insert placeholder into DB immediately
+    const { data: insertedRequest, error: insertError } = await supabase
       .from('requests')
       .insert({
         channel: body.channel,
         region: body.region,
         text_content: body.text,
-        emotion: emotion,
-        urgency: urgency,
-        topic: topic,
-        confidence: prediction.confidence,
-        is_flagged: shouldFlag,
-        status: 'pending'
+        status: 'pending',
+        // Placeholder values (will be updated soon)
+        emotion: null,
+        urgency: null,
+        topic: null,
+        confidence: null,
+        is_flagged: false
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (insertError) throw insertError;
 
-    return NextResponse.json({
+    const requestId = insertedRequest.id;
+
+    // Step 2: Return immediately to user
+    const response = NextResponse.json({
       success: true,
-      request_id: data.id,
-      analysis: {
-        emotion: emotion,
-        urgency: urgency,
-        topic: topic,
-        confidence: prediction.confidence,
-        is_flagged: shouldFlag,
-        raw: prediction
-      }
+      request_id: requestId,
+      message: 'Request received. Analyzing...'
     });
+
+    // Step 3: Process in background (don't await)
+    processInBackground(requestId, body.text).catch(error => {
+      console.error('Background processing error:', error);
+    });
+
+    return response;
 
   } catch (error: any) {
     console.error('Error:', error);
@@ -88,10 +66,56 @@ export async function POST(request: Request) {
   }
 }
 
-// Map your model's emotions to Supabase 11-emotion schema
+// Background processing function
+async function processInBackground(requestId: string, text: string) {
+  try {
+    // Call MARBERT backend
+    const backendResponse = await fetch(`${BACKEND_URL}/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+
+    if (!backendResponse.ok) {
+      throw new Error(`Backend error: ${backendResponse.status}`);
+    }
+
+    const prediction = await backendResponse.json();
+    
+    // Map results
+    const emotion = mapEmotionToSchema(prediction.emotion);
+    const urgency = prediction.urgency.toLowerCase();
+    const topic = predictTopic(text);
+    const shouldFlag = (
+      urgency === 'high' ||
+      prediction.reasons.includes('crisis_override') ||
+      (urgency === 'medium' && ['anger', 'fear', 'sadness'].includes(emotion))
+    );
+
+    // Update the database row with actual results
+    const { error: updateError } = await supabase
+      .from('requests')
+      .update({
+        emotion: emotion,
+        urgency: urgency,
+        topic: topic,
+        confidence: prediction.confidence,
+        is_flagged: shouldFlag
+      })
+      .eq('id', requestId);
+
+    if (updateError) {
+      console.error('Error updating request:', updateError);
+    }
+
+  } catch (error) {
+    console.error('Processing error:', error);
+    // Request stays with null values if processing fails
+  }
+}
+
 function mapEmotionToSchema(emotion: string): string {
   const mapping: Record<string, string> = {
-    // Your model output → Supabase schema
     'anger': 'anger',
     'fear': 'fear',
     'sadness': 'sadness',
@@ -109,7 +133,6 @@ function mapEmotionToSchema(emotion: string): string {
   return mapping[emotion.toLowerCase()] || 'neutral';
 }
 
-// Simple topic classification based on keywords
 function predictTopic(text: string): string {
   const textLower = text.toLowerCase();
   

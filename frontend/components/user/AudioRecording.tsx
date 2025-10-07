@@ -19,6 +19,7 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
   const [showRegionError, setShowRegionError] = useState(false);
   const [uploadMode, setUploadMode] = useState<'record' | 'upload'>('record');
   const [uploadedFileName, setUploadedFileName] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -191,15 +192,46 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
       return;
     }
 
-    // TODO: Implement backend submission with region
-    console.log("Submitting audio blob:", audioBlob);
-    console.log("Region:", selectedRegion);
-    alert(`Recording submitted for region: ${selectedRegion}\n(Backend integration pending)`);
-    
-    // Reset after submission
-    handleReRecord();
-    setSelectedRegion("");
-    onBack();
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      // Create FormData to send audio file
+      const formData = new FormData();
+      const audioFile = new File([audioBlob], uploadedFileName || 'recording.webm', { 
+        type: audioBlob.type 
+      });
+      
+      formData.append('audio', audioFile);
+      formData.append('region', selectedRegion);
+      formData.append('channel', 'call'); // You can make this dynamic if needed
+
+      // Submit to backend
+      const response = await fetch('/api/analyze-audio', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit audio');
+      }
+
+      const result = await response.json();
+      console.log('Audio analysis result:', result);
+      
+      // Show success message
+      alert(`${uploadMode === 'upload' ? 'File' : 'Recording'} submitted successfully for region: ${selectedRegion}\nProcessing complete!`);
+      
+      // Reset after successful submission
+      handleReRecord();
+      setSelectedRegion("");
+      onBack();
+    } catch (err) {
+      console.error('Submission error:', err);
+      setError('Failed to submit audio. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -371,8 +403,17 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
         ) : (
           // Playback Preview Interface
           <div className="flex flex-col items-center space-y-6">
-            <div className="w-full max-w-md">
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300">
+            <div className="w-full max-w-md relative">
+              {/* Processing Overlay */}
+              {isSubmitting && (
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl z-10">
+                  <div className="animate-spin h-12 w-12 border-4 border-amber-600 border-t-transparent rounded-full mb-3"></div>
+                  <p className="text-sm font-medium text-gray-700">معالجة الصوت...</p>
+                  <p className="text-xs text-gray-500">Processing audio...</p>
+                </div>
+              )}
+              
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300">{/* ... */}
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center">
                     {uploadMode === 'upload' ? (
@@ -448,7 +489,8 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
             <div className="flex gap-4 w-full max-w-md">
               <button
                 onClick={handleReRecord}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="flex-1 px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <RotateCcw className="w-4 h-4" />
                 {uploadMode === 'upload' ? 'تغيير الملف / Change File' : 'إعادة التسجيل / Re-record'}
@@ -456,10 +498,20 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
               
               <button
                 onClick={handleSubmit}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 transition-all flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-amber-600 hover:bg-amber-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send className="w-4 h-4" />
-                إرسال / Submit
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    معالجة... / Processing...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    إرسال / Submit
+                  </>
+                )}
               </button>
             </div>
           </div>
