@@ -1,6 +1,6 @@
 # Rukn - NCMH Mental Health Feedback Analysis Platform
 
-A real-time, Arabic-first mental health feedback monitoring platform for NCMH (National Center for Mental Health). Built with AI-powered urgency detection, emotion classification, and real-time monitoring with human-in-the-loop approval workflows.
+A real-time, Arabic-first mental health feedback monitoring platform for NCMH (National Center for Mental Health Promotion). Built with AI-powered urgency detection, emotion classification, and real-time monitoring with human-in-the-loop approval workflows.
 
 ## 🚀 Quick Start
 
