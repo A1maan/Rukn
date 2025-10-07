@@ -11,11 +11,5 @@ torch
 transformers
 numpy
 scikit-learn
-
-fastapi==0.115.0
-uvicorn[standard]==0.32.0
-torch==2.8.0
-transformers==4.46.0
-pydantic==2.10.0
-numpy==1.26.4
+torchvision
 python-multipart==0.0.12
