@@ -16,7 +16,7 @@ Open **http://localhost:3000**
 ```bash
 cd backend
 pip install -r requirements.txt
-python -m app.main
+python -m app/main.py
 ```
 API runs on **http://localhost:8000**
 
@@ -59,7 +59,7 @@ API runs on **http://localhost:8000**
   - Live operations snapshot
   - Recent alerts ticker
 - **Advanced Filters**:
-  - Time window selector (30m, 1h, 3h, Today)
+  - Time window selector (30m, 1h, 3h, 6h, 12h, 24h, Today)
   - Channel filters (Calls, Chats, Surveys)
   - Real-time pending alert count
 
