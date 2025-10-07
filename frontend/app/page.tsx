@@ -15,6 +15,7 @@ import AlertsTicker from "@/components/dashboard/AlertsTicker";
 import FloatingInstructionCard from "@/components/dashboard/FloatingInstructionCard";
 import AlertModal from "@/components/dashboard/AlertModal";
 import AlertsListModal from "@/components/dashboard/AlertsListModal";
+import ReviewModal from "@/components/ReviewModal";
 import Toast, { useToast } from "@/components/dashboard/Toast";
 import { Alert, Aggregate, FlaggedRequest } from "@/types";
 import { useRealtimeRequests, useRealtimeAlerts, useRealtimeRegionStats } from "@/lib/useRealtimeSubscription";
@@ -54,6 +55,7 @@ export default function Dashboard() {
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [flaggedRequests, setFlaggedRequests] = useState<FlaggedRequest[]>([]);
+  const [reviewingRequest, setReviewingRequest] = useState<FlaggedRequest | null>(null);
   const [aggregate, setAggregate] = useState<Aggregate | null>(null);
   const [regionEWIs, setRegionEWIs] = useState<Record<string, number>>({});
   const [timeWindow, setTimeWindow] = useState("today");
@@ -211,16 +213,29 @@ export default function Dashboard() {
   };
 
   const handleReviewRequest = async (requestId: string) => {
+    // Find the request and open the review modal
+    const request = flaggedRequests.find(req => req.id === requestId);
+    if (request) {
+      setReviewingRequest(request);
+    }
+  };
+
+  const handleSubmitReview = async (requestId: string, reviewedBy: string, reviewNotes: string) => {
     try {
       const response = await fetch(`/api/flagged-requests?id=${requestId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "reviewed" }),
+        body: JSON.stringify({ 
+          status: "reviewed",
+          reviewed_by: reviewedBy,
+          review_notes: reviewNotes
+        }),
       });
 
       if (response.ok) {
-        // Remove from list immediately for better UX
+        // Remove from list and close modal
         setFlaggedRequests((prev) => prev.filter((req) => req.id !== requestId));
+        setReviewingRequest(null);
       }
     } catch (error) {
       console.error("Failed to review request:", error);
@@ -338,6 +353,15 @@ export default function Dashboard() {
             onClose={handleCloseModal}
             onApprove={handleApprove}
             onReject={handleReject}
+          />
+        )}
+
+        {/* Review Modal - for reviewing flagged requests */}
+        {reviewingRequest && (
+          <ReviewModal
+            request={reviewingRequest}
+            onClose={() => setReviewingRequest(null)}
+            onSubmit={handleSubmitReview}
           />
         )}
       </div>

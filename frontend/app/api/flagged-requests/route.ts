@@ -125,8 +125,8 @@ export async function PATCH(request: Request) {
       .update({
         status: body.status,
         reviewed_at: new Date().toISOString(),
-        reviewed_by: body.reviewedBy || null,
-        review_notes: body.notes || null
+        reviewed_by: body.reviewed_by || null,
+        review_notes: body.review_notes || null
       })
       .eq('id', id)
       .select()
