@@ -268,14 +268,6 @@ export default function Dashboard() {
         onChannelChange={setChannels}
       />
 
-      {/* Real-time Connection Status Indicator */}
-      <div className="fixed top-6 right-32 z-50 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 backdrop-blur-sm border-2 border-gray-200 shadow-md">
-        <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-        <span className="text-xs font-medium text-gray-700">
-          {isConnected ? 'Live' : 'Offline'}
-        </span>
-      </div>
-
       {/* User Support Button */}
       <Link
         href="/user"
@@ -307,7 +299,7 @@ export default function Dashboard() {
         )}
 
         {/* Bottom utility cards */}
-        <LiveOpsCard aggregate={aggregate} />
+        <LiveOpsCard aggregate={aggregate} isConnected={isConnected} />
         <AlertsTicker alerts={alerts} onClickMore={() => setShowAlertsList(true)} onSelect={handleAlertClick} />
 
         {/* Flagged requests button - always show if there are requests */}

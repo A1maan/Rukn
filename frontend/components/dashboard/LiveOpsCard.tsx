@@ -6,6 +6,7 @@ import { getRegionDisplayName } from "@/lib/utils";
 
 interface LiveOpsCardProps {
   aggregate: Aggregate | null;
+  isConnected?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -18,7 +19,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-export default function LiveOpsCard({ aggregate }: LiveOpsCardProps) {
+export default function LiveOpsCard({ aggregate, isConnected = true }: LiveOpsCardProps) {
   const [currentTime, setCurrentTime] = useState<string>("");
 
   // Update time only on client-side to avoid hydration mismatch
@@ -46,9 +47,18 @@ export default function LiveOpsCard({ aggregate }: LiveOpsCardProps) {
 
   return (
     <div className="fixed bottom-6 left-6 z-20 w-[320px] bg-white/85 backdrop-blur-md rounded-xl border-2 border-amber-300 shadow-xl p-4">
-      <div className="mb-3">
-        <div className="text-sm text-gray-600">Live Ops</div>
-        <div className="text-base font-semibold text-gray-800">{region}</div>
+      <div className="mb-3 flex items-center justify-between">
+        <div>
+          <div className="text-sm text-gray-600">Live Ops</div>
+          <div className="text-base font-semibold text-gray-800">{region}</div>
+        </div>
+        {/* Connection Status */}
+        <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-50 border border-gray-200">
+          <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+          <span className="text-xs font-medium text-gray-700">
+            {isConnected ? 'Live' : 'Offline'}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-3 text-center">
