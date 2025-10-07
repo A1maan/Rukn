@@ -200,63 +200,14 @@ EWI = 0.4 × Distress + 0.25 × NegSent + 0.2 × RiskRate + 0.15 × OpsComplaint
 
 ---
 
-## 🚀 Development Guide
-
-### Add Features Quickly
-
-- **New floating card** → Create component and mount in `app/page.tsx` (see `LiveOpsCard`, `AlertsTicker`)
-- **New stat in Volume card** → Extend `Aggregate` type in `types/index.ts`, add mock in `lib/mock-data.ts`, render in `FloatingVolumeCard.tsx`
-- **New action on flagged request** → Edit `FlaggedRequestsCard.tsx` buttons; PATCH `/api/flagged-requests`
-- **New alert recommendation** → Extend `Alert.recommendations` in types, render in `AlertModal.tsx`
-- **Live updates** → Add `/api/stream` and an `EventSource` in `app/page.tsx`
-
-### Debug Tips
-
-- **Region click throws error** → Add that region to `mockAggregates` in `lib/mock-data.ts`
-- **Map looks odd** → Verify GeoJSON in `public/data/ksa-provinces.geojson`
-- **Styles missing** → Tailwind v4 uses `@import "tailwindcss"` in `app/globals.css` (no config file needed)
-- **Arabic font not applied** → Ensure `layout.tsx` imports `Noto_Naskh_Arabic` and `globals.css` has `.font-ar`
-
-### Productivity Helpers
-
-- Use `Intl.NumberFormat`/`Intl.DateTimeFormat` (already wrapped in `lib/utils.ts`)
-- Keyboard shortcuts (optional): `F` (Filters), `R` (Requests), `A` (Alerts)
-
----
-
-## 📝 Next Steps
-
-1. **Backend Integration**: Connect to real NLP pipeline and database
-2. **Authentication**: Add user login and role-based access (NextAuth)
-3. **RTL Support**: Implement i18next for Arabic/English toggle
-4. **Live Updates**: Add SSE or WebSocket for real-time alerts
-5. **Testing**: Add unit tests for components and API routes
-6. **Deployment**: Deploy to Vercel or AWS with environment variables
-
-### Ship Checklist
-
-- [ ] Replace mock APIs with real endpoints
-- [ ] Add authentication
-- [ ] Add SSE/WebSocket for live data
-- [ ] Confirm Arabic numerals/dates and RTL correctness
-- [ ] Keep GeoJSON simplified (< 500KB)
-
----
-
-## 🎬 Demo
-
-See [DEMO-SCRIPT.md](frontend/DEMO-SCRIPT.md) for a complete presentation guide.
-
----
-
 ## 📄 License
 
-MIT (adjust as needed for your organization)
+MIT License
 
 ---
 
 ## 👥 Team
 
-Built for **startAD AI for Good Sandbox** & **NCMH** by Rukn.
+Built for **startAD AI for Good Sandbox** & **NCMH** by Team Rukn.
 
 ---
