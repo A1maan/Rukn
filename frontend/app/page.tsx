@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Users } from "lucide-react";
@@ -15,10 +15,39 @@ import AlertsTicker from "@/components/dashboard/AlertsTicker";
 import FloatingInstructionCard from "@/components/dashboard/FloatingInstructionCard";
 import AlertModal from "@/components/dashboard/AlertModal";
 import AlertsListModal from "@/components/dashboard/AlertsListModal";
+import Toast, { useToast } from "@/components/dashboard/Toast";
 import { Alert, Aggregate, FlaggedRequest } from "@/types";
+import { useRealtimeRequests, useRealtimeAlerts, useRealtimeRegionStats } from "@/lib/useRealtimeSubscription";
+import { supabase } from "@/lib/supabaseClient";
 
 // Dynamic import for map to avoid SSR issues with Leaflet
 const MapView = dynamic(() => import("@/components/dashboard/MapView"), { ssr: false });
+
+// Debounced refresh hook
+function useDebouncedCallback(callback: () => void, delay = 1000) {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedCallback = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      callback();
+    }, delay);
+  }, [callback, delay]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  return debouncedCallback;
+}
 
 export default function Dashboard() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
@@ -32,9 +61,13 @@ export default function Dashboard() {
   const [showFlaggedRequests, setShowFlaggedRequests] = useState(false);
   const [showAlertsList, setShowAlertsList] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
+  
+  // Toast notifications
+  const { toasts, showToast, removeToast } = useToast();
 
-  // Fetch all regions' EWI data for initial map coloring
-  useEffect(() => {
+  // Fetch all regions' EWI data - wrapped in useCallback for real-time updates
+  const fetchRegionEWIs = useCallback(() => {
     const channelsParam = channels.join(',');
     fetch(`/api/aggregates?window=${timeWindow}&channels=${channelsParam}`)
       .then((res) => res.json())
@@ -49,19 +82,18 @@ export default function Dashboard() {
         setRegionEWIs(ewisMap);
       })
       .catch(console.error);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeWindow, channels.join(',')]);
+  }, [timeWindow, channels]);
 
-  // Fetch alerts
-  useEffect(() => {
+  // Fetch alerts - wrapped in useCallback for real-time updates
+  const fetchAlerts = useCallback(() => {
     fetch(`/api/alerts?status=pending&window=${timeWindow}`)
       .then((res) => res.json())
       .then((data: Alert[]) => setAlerts(data))
       .catch(console.error);
   }, [timeWindow]);
 
-  // Fetch flagged requests
-  useEffect(() => {
+  // Fetch flagged requests - wrapped in useCallback for real-time updates
+  const fetchFlaggedRequests = useCallback(() => {
     const params = new URLSearchParams({
       status: "pending",
       ...(selectedRegion && { region: selectedRegion })
@@ -73,8 +105,8 @@ export default function Dashboard() {
       .catch(console.error);
   }, [selectedRegion]);
 
-  // Fetch aggregate data when region is selected OR on initial load with timeWindow
-  useEffect(() => {
+  // Fetch selected region aggregate - wrapped in useCallback for real-time updates
+  const fetchRegionAggregate = useCallback(() => {
     if (!selectedRegion) {
       setAggregate(null);
       return;
@@ -85,8 +117,72 @@ export default function Dashboard() {
       .then((res) => res.json())
       .then((data: Aggregate) => setAggregate(data))
       .catch(console.error);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRegion, timeWindow, channels.join(',')]);
+  }, [selectedRegion, timeWindow, channels]);
+
+  // Create debounced versions of fetch functions to prevent excessive updates
+  const debouncedFetchRegionEWIs = useDebouncedCallback(fetchRegionEWIs, 1000);
+  const debouncedFetchAlerts = useDebouncedCallback(fetchAlerts, 1000);
+  const debouncedFetchFlaggedRequests = useDebouncedCallback(fetchFlaggedRequests, 1000);
+  const debouncedFetchRegionAggregate = useDebouncedCallback(fetchRegionAggregate, 1000);
+
+  // Initial fetch for region EWIs
+  useEffect(() => {
+    fetchRegionEWIs();
+  }, [fetchRegionEWIs]);
+
+  // Initial fetch for alerts
+  useEffect(() => {
+    fetchAlerts();
+  }, [fetchAlerts]);
+
+  // Initial fetch for flagged requests
+  useEffect(() => {
+    fetchFlaggedRequests();
+  }, [fetchFlaggedRequests]);
+
+  // Initial fetch for region aggregate
+  useEffect(() => {
+    fetchRegionAggregate();
+  }, [fetchRegionAggregate]);
+
+  // Monitor Supabase connection status
+  useEffect(() => {
+    const channel = supabase.channel('connection-status');
+    
+    channel
+      .on('system', { event: 'error' }, () => {
+        console.log('❌ Supabase connection error');
+        setIsConnected(false);
+        showToast('Real-time connection lost. Attempting to reconnect...', 'error');
+      })
+      .on('system', { event: 'connected' }, () => {
+        console.log('✅ Supabase connected');
+        setIsConnected(true);
+        showToast('Real-time connection established', 'success');
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [showToast]);
+
+  // 🔴 Real-time subscriptions using Supabase with debouncing
+  // Updates region stats when new requests come in
+  useRealtimeRegionStats(debouncedFetchRegionEWIs);
+
+  // Updates alerts when alerts change
+  useRealtimeAlerts(debouncedFetchAlerts);
+
+  // Updates requests and aggregates when requests change
+  useRealtimeRequests(() => {
+    debouncedFetchFlaggedRequests();
+    debouncedFetchRegionAggregate();
+  });
+  useRealtimeRequests(() => {
+    fetchFlaggedRequests();
+    fetchRegionAggregate();
+  });
 
   // Filter flagged requests by urgency for high priority count
   const highPriorityCount = flaggedRequests.filter((req) => req.urgency === "HIGH").length;
@@ -172,6 +268,14 @@ export default function Dashboard() {
         onChannelChange={setChannels}
       />
 
+      {/* Real-time Connection Status Indicator */}
+      <div className="fixed top-6 right-32 z-50 flex items-center gap-2 px-3 py-2 rounded-lg bg-white/90 backdrop-blur-sm border-2 border-gray-200 shadow-md">
+        <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+        <span className="text-xs font-medium text-gray-700">
+          {isConnected ? 'Live' : 'Offline'}
+        </span>
+      </div>
+
       {/* User Support Button */}
       <Link
         href="/user"
@@ -245,6 +349,16 @@ export default function Dashboard() {
           />
         )}
       </div>
+
+      {/* Toast Notifications */}
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type as 'info' | 'success' | 'warning' | 'error'}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </div>
   );
 }
