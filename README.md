@@ -561,31 +561,6 @@ Backend includes keyword-based crisis detection that overrides urgency classific
 
 ---
 
-## 🐛 Known Issues & Limitations
-
-1. **Mock Data Remnants**: Some API routes still use mock data fallbacks
-2. **i18n Not Active**: i18next is installed but RTL/Arabic translation not fully implemented
-3. **Audio Analysis**: Audio endpoint exists but not fully integrated with backend
-4. **Historical Data**: No historical trend visualization yet
-5. **Authentication**: No user authentication or role-based access control
-
----
-
-## 🚦 Deployment Checklist
-
-- [ ] Set up Supabase production database
-- [ ] Configure environment variables
-- [ ] Deploy backend to cloud service (Cloud Run/ECS/Heroku)
-- [ ] Deploy frontend to Vercel/Netlify
-- [ ] Enable HTTPS for both services
-- [ ] Configure CORS for production domains
-- [ ] Set up monitoring and logging
-- [ ] Configure database backups
-- [ ] Implement authentication
-- [ ] Set up CI/CD pipeline
-
----
-
 ## 📄 License
 
 MIT License
