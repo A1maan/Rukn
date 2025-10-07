@@ -45,6 +45,15 @@ export default function FlaggedRequestsCard({
     }
   };
 
+  const formatRegionName = (region: string) => {
+    return region
+      .toLowerCase()
+      .replace(/_/g, " ")
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   return (
     <>
       {/* Centered floating panel (no backdrop) */}
@@ -95,7 +104,7 @@ export default function FlaggedRequestsCard({
                     <div key={req.id} className="border border-amber-200 rounded-xl bg-white p-6 shadow-sm hover:shadow transition">
                       <div className="flex items-start justify-between mb-4">
                         <div className="text-sm text-gray-700">
-                          <span className="font-semibold text-gray-700">{req.region}</span>
+                          <span className="font-semibold text-gray-700">{formatRegionName(req.region)}</span>
                           <span className="mx-2">•</span>
                           <span>{formatDateTime(req.ts, "en-US")}</span>
                         </div>
