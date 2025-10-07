@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Mic, Square, Play, RotateCcw, Send } from "lucide-react";
+import { Mic, Square, RotateCcw, Send, Upload, X } from "lucide-react";
 import RegionSelector from "./RegionSelector";
 
 interface AudioRecordingProps {
@@ -17,13 +17,17 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [showRegionError, setShowRegionError] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'record' | 'upload'>('record');
+  const [uploadedFileName, setUploadedFileName] = useState<string>("");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const MAX_RECORDING_TIME = 600; // 5 minutes in seconds
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
   // Cleanup on unmount
   useEffect(() => {
@@ -134,6 +138,47 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
     setIsPlaying(false);
     setError("");
     setShowRegionError(false);
+    setUploadedFileName("");
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+
+    if (!file.type.startsWith('audio/')) {
+      setError("Please upload a valid audio file (MP3, WAV, OGG, M4A, etc.)");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB. Please upload a smaller file.`);
+      return;
+    }
+
+    const blob = new Blob([file], { type: file.type });
+    setAudioBlob(blob);
+    
+    const url = URL.createObjectURL(blob);
+    setAudioURL(url);
+    setUploadedFileName(file.name);
+
+    const audio = new Audio(url);
+    audio.addEventListener('loadedmetadata', () => {
+      setRecordingTime(Math.floor(audio.duration));
+    });
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveFile = () => {
+    handleReRecord();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async () => {
@@ -178,6 +223,40 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
           <p className="text-gray-600">Voice Message Recording</p>
         </div>
 
+        {/* Mode Toggle - Record vs Upload */}
+        {!audioBlob && (
+          <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
+            <button
+              onClick={() => {
+                setUploadMode('record');
+                setError("");
+              }}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                uploadMode === 'record'
+                  ? 'bg-white text-amber-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Mic className="w-4 h-4 inline-block mr-2" />
+              تسجيل / Record
+            </button>
+            <button
+              onClick={() => {
+                setUploadMode('upload');
+                setError("");
+              }}
+              className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
+                uploadMode === 'upload'
+                  ? 'bg-white text-amber-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Upload className="w-4 h-4 inline-block mr-2" />
+              رفع ملف / Upload
+            </button>
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -186,9 +265,10 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
         )}
 
         {!audioBlob ? (
-          // Recording Interface
-          <div className="flex flex-col items-center space-y-6">
-            {/* Recording Indicator */}
+          uploadMode === 'record' ? (
+            // Recording Interface
+            <div className="flex flex-col items-center space-y-6">
+              {/* Recording Indicator */}
             <div className="relative">
               <div className={`w-32 h-32 rounded-full flex items-center justify-center transition-all ${
                 isRecording ? 'bg-red-100 animate-pulse' : 'bg-amber-100'
@@ -246,6 +326,48 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
               {isRecording ? 'إيقاف التسجيل / Stop Recording' : 'بدء التسجيل / Start Recording'}
             </button>
           </div>
+          ) : (
+            // Upload Interface
+            <div className="flex flex-col items-center space-y-6">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+
+              {/* Upload Icon */}
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Upload className="w-16 h-16 text-purple-600" />
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="text-center max-w-md">
+                <p className="text-sm text-gray-600 mb-1">
+                  اختر ملف صوتي من جهازك
+                </p>
+                <p className="text-xs text-gray-500 mb-3">
+                  Choose an audio file from your device
+                </p>
+                <p className="text-xs text-gray-400">
+                  Supported formats: MP3, WAV, OGG, M4A, WebM<br />
+                  Maximum file size: 50MB
+                </p>
+              </div>
+
+              {/* Upload Button */}
+              <button
+                onClick={handleUploadClick}
+                className="px-8 py-4 rounded-xl font-semibold text-white bg-purple-600 hover:bg-purple-700 transition-all"
+              >
+                <Upload className="w-5 h-5 inline-block ml-2" />
+                اختيار الملف / Choose File
+              </button>
+            </div>
+          )
         ) : (
           // Playback Preview Interface
           <div className="flex flex-col items-center space-y-6">
@@ -253,12 +375,32 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
               <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center">
-                    <Mic className="w-6 h-6 text-white" />
+                    {uploadMode === 'upload' ? (
+                      <Upload className="w-6 h-6 text-white" />
+                    ) : (
+                      <Mic className="w-6 h-6 text-white" />
+                    )}
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">تم التسجيل بنجاح!</p>
-                    <p className="text-sm text-gray-600">Recording Complete</p>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-800">
+                      {uploadMode === 'upload' ? 'تم رفع الملف بنجاح!' : 'تم التسجيل بنجاح!'}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {uploadMode === 'upload' ? 'File Uploaded Successfully' : 'Recording Complete'}
+                    </p>
+                    {uploadedFileName && (
+                      <p className="text-xs text-gray-500 mt-1 truncate">
+                        {uploadedFileName}
+                      </p>
+                    )}
                   </div>
+                  <button
+                    onClick={handleRemoveFile}
+                    className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                    title="Remove file"
+                  >
+                    <X className="w-5 h-5 text-red-600" />
+                  </button>
                 </div>
 
                 <div className="mb-4">
@@ -279,7 +421,7 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
                 </div>
 
                 <p className="text-xs text-gray-500 text-center">
-                  استمع للتسجيل قبل الإرسال / Listen to your recording before submitting
+                  استمع {uploadMode === 'upload' ? 'للملف' : 'للتسجيل'} قبل الإرسال / Preview before submitting
                 </p>
               </div>
             </div>
@@ -309,7 +451,7 @@ export default function AudioRecording({ onBack }: AudioRecordingProps) {
                 className="flex-1 px-6 py-3 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                إعادة التسجيل / Re-record
+                {uploadMode === 'upload' ? 'تغيير الملف / Change File' : 'إعادة التسجيل / Re-record'}
               </button>
               
               <button
