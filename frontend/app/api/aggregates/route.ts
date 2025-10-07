@@ -16,7 +16,13 @@ export async function GET(request: Request) {
     if (window === 'today') {
       // For "today", start from midnight (12:00 AM) of current day
       const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      const saudiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Riyadh' }));
+      const todayStart = new Date(
+        saudiTime.getFullYear(), 
+        saudiTime.getMonth(), 
+        saudiTime.getDate(), 
+        0, 0, 0, 0
+      );
       startTime = todayStart.toISOString();
     } else {
       // For other windows, calculate from current time minus window duration
