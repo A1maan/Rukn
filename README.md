@@ -24,8 +24,6 @@ API runs on **http://localhost:8000**
 
 ## 🎯 Features
 
-### ✅ Implemented
-
 #### 🧠 AI-Powered Analysis Backend
 - **MARBERT Models**: Fine-tuned Arabic BERT models for mental health text
   - **Urgency Classification**: High/Medium/Low urgency detection with calibration
@@ -86,52 +84,63 @@ API runs on **http://localhost:8000**
 - **Debounced Updates**: Optimized refresh logic to prevent excessive re-renders
 - **Connection Recovery**: Automatic reconnection with user notifications
 
-### 🔜 To Be Implemented
-
-- **🌐 RTL/i18n Support**: Full Arabic/English toggle with RTL layout (i18next installed)
-- **📈 Historical Trends**: View past alerts and EWI trends over time
-- **� Advanced Search**: Search by topic, keywords, or alert type
-- **📱 Mobile Optimization**: Enhanced mobile experience
-- **🔐 Authentication**: User authentication and role-based access control
-
----
-
 ## 📁 Project Structure
 
 ```
 rukn/
 ├── backend/                    # AI Analysis Service
 │   ├── app/
+│   │   ├── __init__.py        # Python package init
 │   │   ├── main.py            # FastAPI app with MARBERT models
 │   │   ├── config.py          # Configuration settings
 │   │   ├── supabase_client.py # Supabase integration
 │   │   └── routes/
+│   │       ├── __init__.py    # Routes package init
 │   │       └── predict.py     # Prediction endpoints
 │   ├── models/
 │   │   ├── urgency_model/     # Fine-tuned urgency classifier
 │   │   │   ├── best_urgency.pt
 │   │   │   ├── inference_meta.json
-│   │   │   └── tokenizer files...
+│   │   │   ├── special_tokens_map.json
+│   │   │   ├── tokenizer_config.json
+│   │   │   ├── tokenizer.json
+│   │   │   └── vocab.txt
 │   │   └── emotion_model/     # Fine-tuned emotion classifier
 │   │       ├── best_emotion.pt
 │   │       ├── emotion_meta.json
-│   │       └── tokenizer files...
+│   │       ├── special_tokens_map.json
+│   │       ├── tokenizer_config.json
+│   │       ├── tokenizer.json
+│   │       └── vocab.txt
+│   ├── .env.example           # Environment variables template
 │   └── requirements.txt       # Python dependencies
 │
 ├── frontend/                   # Next.js Dashboard
 │   ├── app/
-│   │   ├── api/               # API routes (proxy to backend/Supabase)
+│   │   ├── api/               # API routes (Supabase aggregation layer)
+│   │   │   ├── aggregates/
+│   │   │   │   └── route.ts   # Analytics aggregation
 │   │   │   ├── alerts/        # Alert endpoints
-│   │   │   ├── aggregates/    # Analytics aggregation
-│   │   │   ├── analyze/       # Text analysis proxy
-│   │   │   ├── analyze-audio/ # Audio analysis
-│   │   │   ├── flagged-requests/ # Request management
-│   │   │   ├── generate-alerts/  # Alert generation
-│   │   │   ├── regions/       # GeoJSON regions
-│   │   │   └── test-supabase/ # Connection testing
+│   │   │   │   ├── route.ts   # GET/list alerts
+│   │   │   │   └── [id]/
+│   │   │   │       └── route.ts # Approve/reject alert
+│   │   │   ├── analyze/
+│   │   │   │   └── route.ts   # Text analysis proxy to backend
+│   │   │   ├── analyze-audio/
+│   │   │   │   └── route.ts   # Audio analysis (placeholder)
+│   │   │   ├── flagged-requests/
+│   │   │   │   └── route.ts   # Request management (GET/PATCH)
+│   │   │   ├── generate-alerts/
+│   │   │   │   └── route.ts   # Alert generation logic
+│   │   │   ├── regions/
+│   │   │   │   └── route.ts   # GeoJSON regions with EWI
+│   │   │   └── test-supabase/
+│   │   │       └── route.ts   # Connection testing
+│   │   ├── favicon.ico        # App icon
 │   │   ├── globals.css        # Tailwind v4, theme, utilities
-│   │   ├── layout.tsx         # Fonts (Geist + Noto Naskh Arabic)
+│   │   ├── layout.tsx         # Root layout (fonts, metadata)
 │   │   ├── page.tsx           # Main dashboard composition
+│   │   ├── responsive.css     # Responsive design styles
 │   │   └── user/
 │   │       └── page.tsx       # User support interface
 │   │
@@ -160,21 +169,26 @@ rukn/
 │   │       └── UserPageLayout.tsx   # Layout wrapper
 │   │
 │   ├── lib/
-│   │   ├── mock-data.ts              # Mock data (legacy)
 │   │   ├── supabaseClient.ts         # Supabase client & types
 │   │   ├── useRealtimeSubscription.ts # Real-time hooks
 │   │   └── utils.ts                  # EWI colors, formatters
 │   │
 │   ├── public/
 │   │   └── data/
-│   │       └── ksa-provinces.geojson # Saudi Arabia provinces
+│   │       └── ksa-provinces.geojson # Saudi Arabia provinces GeoJSON
 │   │
 │   ├── types/
 │   │   └── index.ts           # TypeScript interfaces
 │   │
-│   └── package.json           # Dependencies
+│   ├── .env.example           # Environment variables template
+│   ├── next-env.d.ts          # Next.js TypeScript declarations
+│   ├── next.config.ts         # Next.js configuration
+│   ├── package.json           # Dependencies
+│   ├── postcss.config.mjs     # PostCSS configuration
+│   └── tsconfig.json          # TypeScript configuration
 │
-└── README.md
+├── LICENSE                     # MIT License
+└── README.md                   # This file
 ```
 
 ---
@@ -214,57 +228,6 @@ User Input → Backend AI → Supabase DB → Frontend Dashboard
 - Supabase Realtime subscriptions
 - Debounced frontend updates
 
-### Frontend Data Types
-
-```typescript
-interface Alert {
-  id: string;
-  ts: string;
-  region: string;
-  summary: string;
-  evidence: {
-    window: string;
-    z_scores: Record<string, number>;
-    top_phrases: string[];
-    flagged_count: number;
-  };
-  recommendations: {
-    type: 'staffing' | 'routing' | 'messaging';
-    text: string;
-  }[];
-  status: 'pending' | 'approved' | 'rejected';
-  confidence: number;
-}
-
-interface FlaggedRequest {
-  id: string;
-  ts: string;
-  channel: 'call' | 'chat' | 'survey';
-  region: string;
-  text_preview: string;
-  urgency: 'HIGH' | 'MEDIUM' | 'LOW';
-  confidence: number;
-  category: string;
-  emotion: 'distress' | 'anger' | 'sadness' | 'calm';
-  status: 'pending' | 'reviewed' | 'escalated' | 'dismissed';
-}
-
-interface Aggregate {
-  window: string;
-  region: string;
-  counts: {
-    events: number;
-    calls: number;
-    chats: number;
-    surveys: number;
-  };
-  sentiment_pct: { pos: number; neu: number; neg: number };
-  emotions_pct: { distress: number; anger: number; sadness: number; calm: number };
-  top_topics: { key: string; pct: number }[];
-  ewi: number;
-  anomalies: { metric: string; z: number }[];
-}
-```
 
 ### API Routes (Frontend)
 
@@ -303,6 +266,9 @@ python -m venv venv
 source venv/bin/activate  # macOS/Linux
 # OR
 venv\Scripts\activate  # Windows
+# OR
+conda create -n rukn python=3.12
+conda activate rukn
 ```
 
 3. **Install dependencies**:
@@ -367,21 +333,6 @@ Frontend will be available at `http://localhost:3000`
 3. Enable Realtime for `requests` and `alerts` tables
 4. Copy your project URL and anon key to `.env.local`
 
-### Production Build
-
-**Backend**:
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-**Frontend**:
-```bash
-cd frontend
-npm run build
-npm start
-```
 
 ## 🎨 Design System
 
