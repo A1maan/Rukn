@@ -192,10 +192,15 @@ rukn/
 │   ├── postcss.config.mjs     # PostCSS configuration
 │   └── tsconfig.json          # TypeScript configuration
 │
-├── CONTRIBUTING.md             # Contribution guidelines
-├── LICENSE                     # MIT License (code)
-├── LICENSE-DOCS                # CC BY 4.0 License (documentation)
-└── README.md                   # This file
+├── docs/                       # Documentation
+│   └── GIT_LFS_GUIDE.md       # Git LFS setup guide
+│
+├── .gitattributes             # Git LFS configuration
+├── CHANGELOG.md               # Version history
+├── CONTRIBUTING.md            # Contribution guidelines
+├── LICENSE                    # MIT License (code)
+├── LICENSE-DOCS               # CC BY 4.0 License (documentation)
+└── README.md                  # This file
 ```
 
 ---
@@ -259,6 +264,54 @@ All routes in `/app/api/` act as proxies or aggregation layers:
 - Node.js 20+ & npm
 - Python 3.12+
 - Supabase account (for database)
+- **Git LFS** (for downloading model weights)
+
+### Cloning the Repository
+
+This project uses **Git Large File Storage (LFS)** to manage large model files (`.pt` files in `backend/models/`). You must have Git LFS installed to properly download the model weights.
+
+#### Install Git LFS
+
+**macOS:**
+```bash
+brew install git-lfs
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install git-lfs
+```
+
+**Windows:**
+Download and install from [git-lfs.github.com](https://git-lfs.github.com/)
+
+**Verify installation:**
+```bash
+git lfs version
+# Should output: git-lfs/3.x.x
+```
+
+#### Clone with LFS
+
+```bash
+# Initialize Git LFS (first time only)
+git lfs install
+
+# Clone the repository
+git clone https://github.com/A1maan/Rukn.git
+cd Rukn
+
+# Verify LFS files were downloaded
+git lfs ls-files
+# Should show model files like:
+# backend/models/emotion_model/best_emotion.pt
+# backend/models/urgency_model/best_urgency.pt
+```
+
+**Important:** If you cloned without Git LFS, pull the LFS files:
+```bash
+git lfs pull
+```
 
 ### Backend Setup
 

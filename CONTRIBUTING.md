@@ -74,15 +74,50 @@ We accept contributions for:
 
 - Node.js 20+ & npm
 - Python 3.12+
-- Git
+- Git & **Git LFS** (required for model weights)
 - Supabase account (for database)
+
+### Install Git LFS
+
+Before cloning, ensure Git LFS is installed to properly download model files:
+
+**macOS:**
+```bash
+brew install git-lfs
+git lfs install
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install git-lfs
+git lfs install
+```
+
+**Windows:**
+1. Download from [git-lfs.github.com](https://git-lfs.github.com/)
+2. Install and run: `git lfs install`
+
+**Verify:**
+```bash
+git lfs version
+```
+
+### Clone the Repository
+
+```bash
+# Clone with LFS
+git clone https://github.com/A1maan/Rukn.git
+cd Rukn
+
+# Verify model files downloaded correctly
+git lfs ls-files
+# Should show .pt files in backend/models/
+```
 
 ### Backend Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/A1maan/Rukn.git
-cd Rukn/backend
+cd backend
 
 # Create virtual environment
 python -m venv venv
@@ -429,5 +464,3 @@ By contributing, you agree that your contributions will be licensed under:
 Your contributions help improve mental health support services and make a real difference in people's lives. Thank you for being part of this mission!
 
 ---
-
-**Built with ❤️ for mental health support**
