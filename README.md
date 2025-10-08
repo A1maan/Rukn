@@ -1,5 +1,10 @@
 # Rukn - NCMH Mental Health Feedback Analysis Platform
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+
 A real-time, Arabic-first mental health feedback monitoring platform for NCMH (National Center for Mental Health Promotion). Built with AI-powered urgency detection, emotion classification, and real-time monitoring with human-in-the-loop approval workflows.
 
 ## 🚀 Quick Start
@@ -187,7 +192,9 @@ rukn/
 │   ├── postcss.config.mjs     # PostCSS configuration
 │   └── tsconfig.json          # TypeScript configuration
 │
-├── LICENSE                     # MIT License
+├── CONTRIBUTING.md             # Contribution guidelines
+├── LICENSE                     # MIT License (code)
+├── LICENSE-DOCS                # CC BY 4.0 License (documentation)
 └── README.md                   # This file
 ```
 
@@ -467,9 +474,120 @@ Backend includes keyword-based crisis detection that overrides urgency classific
 
 ---
 
-## 📄 License
+## � Future Work
 
-MIT License
+### Phase 1: Core Enhancements (Q1-Q2 2025)
+
+#### Internationalization & Accessibility
+- **🌐 Full RTL Support**: Complete Arabic RTL layout with i18next
+- **🗣️ Multi-language**: Support for additional Arabic dialects
+- **♿ Accessibility**: WCAG 2.1 AA compliance
+- **📱 Mobile Responsive**: Enhanced mobile experience
+
+#### Authentication & Security
+- **🔐 User Authentication**: Role-based access control (Admin, Supervisor, Analyst)
+- **🛡️ Data Privacy**: Enhanced data encryption and HIPAA compliance
+- **📝 Audit Logs**: Complete activity tracking for compliance
+- **🔑 SSO Integration**: Single sign-on with existing NCMH systems
+
+### Phase 2: Intelligence & Automation (Q3-Q4 2025)
+
+#### Advanced Analytics
+- **📈 Historical Trends**: Interactive time-series analysis of EWI and alerts
+- **🗺️ Heat Maps**: Geographic and temporal visualization of mental health trends
+- **📊 Custom Dashboards**: Role-specific analytics views
+- **🔍 Advanced Search**: Full-text search with filters (topic, emotion, urgency, date range)
+- **📉 Predictive Analytics**: ML-based forecasting of crisis trends
+
+#### Automation
+- **⏰ Scheduled Alerts**: Automated cron jobs for continuous monitoring (every 5-10 minutes)
+- **🤖 Smart Routing**: Intelligent case assignment based on specialist availability
+- **🔔 Multi-channel Notifications**: Email, SMS, push notifications for critical alerts
+- **📋 Automated Reports**: Daily, weekly, monthly summary reports
+
+### Phase 3: Advanced Features (2026)
+
+#### Audio & Multimodal Analysis
+- **🎙️ Speech-to-Text**: Arabic speech recognition for call analysis
+- **🎵 Prosody Analysis**: Voice tone and emotion detection
+- **📹 Video Analysis**: Facial expression analysis for video consultations
+- **🖼️ Image Analysis**: Identify crisis signals in shared images
+
+#### Enhanced AI Capabilities
+- **🧠 Contextual Understanding**: Multi-turn conversation analysis
+- **🎯 Topic Modeling**: Automatic discovery of emerging mental health topics
+- **💬 Response Suggestions**: AI-generated empathetic response templates
+- **🔄 Continuous Learning**: Model fine-tuning from supervisor feedback
+- **🌐 Cross-lingual Support**: Support for additional languages (English, Urdu, Hindi)
+
+### Phase 4: Integration & Scale (2026-2027)
+
+#### System Integrations
+- **📞 Call Center Integration**: Direct integration with NCMH phone systems
+- **💬 Social Media Monitoring**: Track mental health trends on Twitter, Instagram
+- **📱 WhatsApp Business**: Support requests via WhatsApp
+- **🏥 EHR Integration**: Connect with electronic health records
+- **🔗 API Ecosystem**: Public API for third-party integrations
+
+#### Scaling & Performance
+- **☁️ Cloud Infrastructure**: Auto-scaling for high-traffic periods
+- **🌍 Multi-region Deployment**: Low-latency access across regions
+- **📊 Big Data Analytics**: Process millions of requests efficiently
+- **🔥 Real-time Streaming**: Sub-second latency for critical alerts
+- **💾 Data Lake**: Long-term storage for research purposes
+
+### Research & Innovation
+
+#### Academic Contributions
+- **📚 Research Publications**: Share findings with mental health research community
+- **🎓 Training Programs**: Educational resources for mental health professionals
+- **🔬 Open Datasets**: Anonymized datasets for mental health research (with ethical approval)
+- **🤝 Collaborations**: Partner with universities and research institutions
+
+#### Ethical AI
+- **⚖️ Bias Detection**: Regular audits for model fairness across demographics
+- **🔍 Explainability**: Interpretable AI decisions for supervisors
+- **🎯 Responsible AI**: Ethical guidelines for mental health AI applications
+- **👥 Human-in-the-Loop**: Maintain human oversight for all critical decisions
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) guide for:
+- Code of conduct
+- Development setup
+- Coding guidelines
+- Pull request process
+- Bug reporting
+- Feature suggestions
+
+---
+
+## �📄 License
+
+This project uses dual licensing:
+
+### Code License
+The source code is licensed under the **MIT License**.
+- Free to use, modify, and distribute
+- See [LICENSE](LICENSE) for details
+
+### Documentation License
+All documentation, research outputs, and non-code content are licensed under the **Creative Commons Attribution 4.0 International License (CC BY 4.0)**.
+- Free to share and adapt
+- Must give appropriate credit
+- See [LICENSE-DOCS](LICENSE-DOCS) for details
+
+### Attribution
+
+When using or citing this work, please include:
+```
+Rukn - NCMH Mental Health Feedback Analysis Platform
+Team Rukn, 2025
+startAD AI for Good Sandbox & National Center for Mental Health (NCMH)
+https://github.com/A1maan/Rukn
+```
 
 ---
 
